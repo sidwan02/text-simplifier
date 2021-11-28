@@ -7,6 +7,7 @@ from simplifier_model import Transformer_Seq2Seq
 import sys
 import random
 
+UNK_TOKEN = "*UNK*"
 
 def train(model, train_french, train_english, eng_padding_index):
 	"""
@@ -121,9 +122,25 @@ def probs_to_words(probs):
 	"""
 	# note: for each item in a window in probs, there will be a probability distribution across all vocab_size words => pick the highest probability word? 
 	# up to you whether the return type is a list of individual word strings or a string concatenation
-	pass 
+        # WE'RE GOING WITH CONCATENATION
+    sentence = []
+    probable_tokens = tf.argmax(probs, axis=1)
+    #TODO: name of dictionary
+    probable_words = tf.map_fn(lam(token): dictionary[token], probable_tokens)
+    probable_sentence = tf.join(probable_words, separator=' ')
+    
+    return tf.strings.as_string(probable_sentence)
 
-def simplify(model, text_input, simplification_strength):
+def convert_to_id(vocab, sentences):
+  """
+  Convert sentences to indexed
+  :param vocab:  dictionary, word --> unique index
+  :param sentences:  list of lists of words, each representing padded sentence
+  :return: numpy array of integers, with each row representing the word indeces in the corresponding sentences
+  """
+  return np.stack([[vocab[word] if word in vocab else vocab[UNK_TOKEN] for word in sentence] for sentence in sentences])
+
+def simplify(model, text_input, simplification_strength=1):
 	"""
 	Passes input to the trained model recursively by a given number of times to simplify the input by simplifcation_strength levels
 
@@ -133,8 +150,18 @@ def simplify(model, text_input, simplification_strength):
 	:returns: the simplified text as a string
 	"""
 	# note: you can feed input into the model as usual with model.call()
-	pass
-
+ #TODO: actually write the parse function
+ #TODO: the call function takes TWO inputs; what should we do about that?
+    if simplification_strength < 1:
+        return text_input
+    processed_text = convert_to_id(model.complex_vocab, parse(text_input))
+    probs = model.call(processed_text)
+    simplified = probs_to_words(text_input)
+    if simplification_strength == 1:
+        return simplified
+    else:
+        return simplify(model, simplified, simplification_strength - 1)
+    
 
 def main():	
 
