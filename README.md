@@ -1,1 +1,7 @@
-# text-simplifier
+# RNN
+
+Perplexity=(11.426952362060547) AccPerSymbol=(0.6194498538970947)
+
+# Transformer
+
+Perplexity=(8.883011817932129) AccPerSymbol=(0.654095470905304)
