@@ -18,12 +18,12 @@ import datetime
 
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 callback_log_dir = 'logs/fit/' + current_time
-train_log_dir = 'logs/gradient_tape/' + current_time + '/train'
-test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
+# train_log_dir = 'logs/gradient_tape/' + current_time + '/train'
+# test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
 
 tensorboard_callback = keras.callbacks.TensorBoard(callback_log_dir)
-train_summary_writer = tf.summary.create_file_writer(train_log_dir)
-test_summary_writer = tf.summary.create_file_writer(test_log_dir)
+# train_summary_writer = tf.summary.create_file_writer(train_log_dir)
+# test_summary_writer = tf.summary.create_file_writer(test_log_dir)
 
 def train(model, train_french, train_english, eng_padding_index):
     """
@@ -65,7 +65,7 @@ def train(model, train_french, train_english, eng_padding_index):
 
         labels = train_english[i: i + model.batch_size, 1:]  # labels
 
-        model.train_step((train_french_batch, train_english_batch, labels, eng_padding_index, test_summary_writer, batch_num))
+        model.train_step((train_french_batch, train_english_batch, labels, eng_padding_index))
 
 
 @av.test_func
@@ -122,9 +122,9 @@ def test(model, test_french, test_english, eng_padding_index):
             acc = model.accuracy_function(probs, labels, mask)
             weighted_sum_acc += acc * batch_valid_tokens
 
-        with train_summary_writer.as_default():
-            tf.summary.scalar('loss', loss, step=batch_num)
-            tf.summary.scalar('accuracy', acc, step=batch_num)
+        # with test_summary_writer.as_default():
+        #     tf.summary.scalar('loss', loss, step=batch_num)
+        #     tf.summary.scalar('accuracy', acc, step=batch_num)
 
     perplexity = tf.exp(acc_loss / total_valid_tokens)
     accuracy = weighted_sum_acc / total_valid_tokens
@@ -156,15 +156,39 @@ def main():
     elif sys.argv[1] == "TRANSFORMER":
         model = Transformer_Seq2Seq(*model_args)
 
+    # model.compile(optimizer=model.optimizer, loss=model.loss_function, metrics=[model.accuracy_function])
+
+    # ============
+
+    train_french = train_french[:, :]
+
+    train_english_trunc = train_english[:, :-1]
+
+    labels = train_english[:, 1:]
+
+
+    # ============
+    print("train_french.shape: ", train_french.shape)
+    print("train_english_trunc.shape: ", train_english_trunc.shape)
+    print("labels.shape: ", labels.shape)
+
+    train_dataset = tf.data.Dataset.from_tensor_slices((train_french, train_english_trunc, labels))
+    train_dataset = train_dataset.batch(64)
+
+    # model.fit(train_dataset, epochs=1, callbacks=[tensorboard_callback])
+
     # TODO:
     # Train and Test Model for 1 epoch.
     for num_epoch in range(1, 2, 1):
-        train(model, train_french, train_english, eng_padding_index)
+        for batch_num, data in enumerate(train_dataset):
+            model.train_step(data, batch_num)
 
-    perplexity, accuracy = test(
-        model, test_french, test_english, eng_padding_index)
-    print("perplexity per symbol: ", perplexity)
-    print("accuracy per symbol: ", accuracy)
+        # train(model, train_french, train_english, eng_padding_index)
+
+    # perplexity, accuracy = test(
+    #     model, test_french, test_english, eng_padding_index)
+    # print("perplexity per symbol: ", perplexity)
+    # print("accuracy per symbol: ", accuracy)
 
     # Visualize a sample attention matrix from the test set
     # Only takes effect if you enabled visualizations above

@@ -93,8 +93,10 @@ class Transformer_Seq2Seq(tf.keras.Model):
 
         return probs
 
-    def train_step(self, data):
-        train_french_batch, train_english_batch, labels, eng_padding_index, test_summary_writer, batch_num = data
+    def train_step(self, data, batch_num):
+        eng_padding_index = 0
+        # train_french_batch, train_english_batch, labels, eng_padding_index, test_summary_writer, batch_num = data
+        train_french_batch, train_english_batch, labels = data
 
         mask = []
 
@@ -112,19 +114,20 @@ class Transformer_Seq2Seq(tf.keras.Model):
 
         with tf.GradientTape() as tape:
             probs = self(train_french_batch, train_english_batch)
+            # loss = self.compiled_loss(probs, labels, mask)
             loss = self.loss_function(probs, labels, mask)
 
         gradients = tape.gradient(loss, self.trainable_variables)
         self.optimizer.apply_gradients(
             zip(gradients, self.trainable_variables))
 
-        # # Update metrics (includes the metric that tracks the loss)
+        # Update metrics (includes the metric that tracks the loss)
         # self.compiled_metrics.update_state(probs, labels, mask)
         # # Return a dict mapping metric names to current value
         # return {m.name: m.result() for m in self.metrics}
 
-        with test_summary_writer.as_default():
-            tf.summary.scalar('loss', loss, step=batch_num)
+        # with test_summary_writer.as_default():
+        #     tf.summary.scalar('loss', loss, step=batch_num)
 
         if batch_num % 20 == 0:
             print("Loss per symbol after {} batches: {}".format(
