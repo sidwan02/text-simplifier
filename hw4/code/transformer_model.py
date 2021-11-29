@@ -6,6 +6,8 @@ from attenvis import AttentionVis
 
 av = AttentionVis()
 
+
+
 # loss_metric = tf.keras.metrics.Mean(name="loss")
 # mae_metric = tf.keras.metrics.Accuracy(name="accuracy")
 
@@ -55,6 +57,10 @@ class Transformer_Seq2Seq(tf.keras.Model):
         self.dense_3 = tf.keras.layers.Dense(200, activation="relu")
         self.dense_4 = tf.keras.layers.Dense(
             self.english_vocab_size, activation="softmax")
+
+        self.weighted_sum_acc = 0
+        self.total_valid_tokens = 0
+        self.acc_loss = 0
 
     @tf.function
     def call(self, inputs):
@@ -133,9 +139,18 @@ class Transformer_Seq2Seq(tf.keras.Model):
         # loss_tracker.update_state(loss)
         # mae_metric.update_state(probs, labels)
 
-        acc = self.accuracy_function(probs, labels, mask)
+        self.total_valid_tokens += batch_valid_tokens
+        self.acc_loss += loss
 
-        return {"loss": loss, "accuracy": acc}
+        acc = self.accuracy_function(probs, labels, mask)
+        self.weighted_sum_acc += acc * batch_valid_tokens
+
+        perplexity = tf.exp(self.acc_loss / self.total_valid_tokens)
+        accuracy = self.weighted_sum_acc / self.total_valid_tokens
+
+        loss_per_symb = loss / batch_valid_tokens
+
+        return {"loss per symbol": loss_per_symb, "accuracy": accuracy, "perplexity": perplexity}
 
         # Return a dict mapping metric names to current value
         # return {m.name: m.result() for m in self.metrics}
@@ -143,7 +158,7 @@ class Transformer_Seq2Seq(tf.keras.Model):
         # with test_summary_writer.as_default():
         #     tf.summary.scalar('loss', loss, step=batch_num)
 
-        print("Loss per symbol: {}".format(loss / batch_valid_tokens))
+        # print("Loss per symbol: {}".format(loss / batch_valid_tokens))
 
     def accuracy_function(self, prbs, labels, mask):
         """
