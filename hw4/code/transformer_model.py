@@ -6,6 +6,8 @@ from attenvis import AttentionVis
 
 av = AttentionVis()
 
+# loss_metric = tf.keras.metrics.Mean(name="loss")
+# mae_metric = tf.keras.metrics.Accuracy(name="accuracy")
 
 class Transformer_Seq2Seq(tf.keras.Model):
     def __init__(self, french_window_size, french_vocab_size, english_window_size, english_vocab_size):
@@ -55,12 +57,14 @@ class Transformer_Seq2Seq(tf.keras.Model):
             self.english_vocab_size, activation="softmax")
 
     @tf.function
-    def call(self, encoder_input, decoder_input):
+    def call(self, inputs):
         """
         :param encoder_input: batched ids corresponding to french sentences
         :param decoder_input: batched ids corresponding to english sentences
         :return prbs: The 3d probabilities as a tensor, [batch_size x window_size x english_vocab_size]
         """
+
+        encoder_input, decoder_input = inputs
 
         # TODO:
         # 1) Add the positional embeddings to french sentence embeddings
@@ -93,18 +97,21 @@ class Transformer_Seq2Seq(tf.keras.Model):
 
         return probs
 
-    def train_step(self, data, batch_num):
+    def train_step(self, data):
+        # print("in train_step ===========================================")
         eng_padding_index = 0
         # train_french_batch, train_english_batch, labels, eng_padding_index, test_summary_writer, batch_num = data
         train_french_batch, train_english_batch, labels = data
 
-        mask = []
 
         batch_valid_tokens = 0
 
         # this is used later for the perp per symbol and acc per symbol calculations
 
-        for indexed_sentence in labels:
+        # print(labels)
+
+        mask = []
+        for indexed_sentence in labels.numpy():
             sentence_mask = [
                 0 if pad_index == eng_padding_index else 1 for pad_index in indexed_sentence]
             mask.append(sentence_mask)
@@ -113,8 +120,7 @@ class Transformer_Seq2Seq(tf.keras.Model):
         mask = tf.convert_to_tensor(mask, dtype=tf.float32)
 
         with tf.GradientTape() as tape:
-            probs = self(train_french_batch, train_english_batch)
-            # loss = self.compiled_loss(probs, labels, mask)
+            probs = self((train_french_batch, train_english_batch))
             loss = self.loss_function(probs, labels, mask)
 
         gradients = tape.gradient(loss, self.trainable_variables)
@@ -123,15 +129,21 @@ class Transformer_Seq2Seq(tf.keras.Model):
 
         # Update metrics (includes the metric that tracks the loss)
         # self.compiled_metrics.update_state(probs, labels, mask)
-        # # Return a dict mapping metric names to current value
+
+        # loss_tracker.update_state(loss)
+        # mae_metric.update_state(probs, labels)
+
+        acc = self.accuracy_function(probs, labels, mask)
+
+        return {"loss": loss, "accuracy": acc}
+
+        # Return a dict mapping metric names to current value
         # return {m.name: m.result() for m in self.metrics}
 
         # with test_summary_writer.as_default():
         #     tf.summary.scalar('loss', loss, step=batch_num)
 
-        if batch_num % 20 == 0:
-            print("Loss per symbol after {} batches: {}".format(
-                batch_num, loss / batch_valid_tokens))
+        print("Loss per symbol: {}".format(loss / batch_valid_tokens))
 
     def accuracy_function(self, prbs, labels, mask):
         """
@@ -144,6 +156,8 @@ class Transformer_Seq2Seq(tf.keras.Model):
         :param mask:  tensor that acts as a padding mask [batch_size x window_size]
         :return: scalar tensor of accuracy of the batch between 0 and 1
         """
+
+        labels = tf.cast(labels, dtype=tf.int64)
 
         decoded_symbols = tf.argmax(input=prbs, axis=2)
         accuracy = tf.reduce_mean(tf.boolean_mask(

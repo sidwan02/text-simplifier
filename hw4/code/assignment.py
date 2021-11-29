@@ -156,7 +156,7 @@ def main():
     elif sys.argv[1] == "TRANSFORMER":
         model = Transformer_Seq2Seq(*model_args)
 
-    # model.compile(optimizer=model.optimizer, loss=model.loss_function, metrics=[model.accuracy_function])
+    model.compile(optimizer=model.optimizer, run_eagerly=True)
 
     # ============
 
@@ -175,13 +175,13 @@ def main():
     train_dataset = tf.data.Dataset.from_tensor_slices((train_french, train_english_trunc, labels))
     train_dataset = train_dataset.batch(64)
 
-    # model.fit(train_dataset, epochs=1, callbacks=[tensorboard_callback])
+    model.fit(train_dataset, epochs=1, callbacks=[tensorboard_callback])
 
     # TODO:
     # Train and Test Model for 1 epoch.
-    for num_epoch in range(1, 2, 1):
-        for batch_num, data in enumerate(train_dataset):
-            model.train_step(data, batch_num)
+    # for num_epoch in range(1, 2, 1):
+    #     for batch_num, data in enumerate(train_dataset):
+    #         model.train_step(data, batch_num)
 
         # train(model, train_french, train_english, eng_padding_index)
 
