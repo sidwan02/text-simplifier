@@ -6,6 +6,7 @@ from preprocess import *
 from transformer_model import Transformer_Seq2Seq
 import sys
 import random
+from tensorflow import keras
 
 from attenvis import AttentionVis
 av = AttentionVis()
@@ -16,11 +17,13 @@ import datetime
 # rm -rf ./logs/
 
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+callback_log_dir = 'logs/fit/' + current_time
 train_log_dir = 'logs/gradient_tape/' + current_time + '/train'
 test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
+
+tensorboard_callback = keras.callbacks.TensorBoard(callback_log_dir)
 train_summary_writer = tf.summary.create_file_writer(train_log_dir)
 test_summary_writer = tf.summary.create_file_writer(test_log_dir)
-
 
 def train(model, train_french, train_english, eng_padding_index):
     """
@@ -60,36 +63,9 @@ def train(model, train_french, train_english, eng_padding_index):
         # somehow create a mask from the padding index
         # for now, make this a dummy matrix of 1s
 
-        mask = []
-
-        batch_valid_tokens = 0
-
-        # this is used later for the perp per symbol and acc per symbol calculations
-
         labels = train_english[i: i + model.batch_size, 1:]  # labels
 
-        for indexed_sentence in labels:
-            sentence_mask = [
-                0 if pad_index == eng_padding_index else 1 for pad_index in indexed_sentence]
-            mask.append(sentence_mask)
-            batch_valid_tokens += np.sum(sentence_mask)
-
-        mask = tf.convert_to_tensor(mask, dtype=tf.float32)
-
-        with tf.GradientTape() as tape:
-            probs = model(train_french_batch, train_english_batch)
-            loss = model.loss_function(probs, labels, mask)
-
-        gradients = tape.gradient(loss, model.trainable_variables)
-        model.optimizer.apply_gradients(
-            zip(gradients, model.trainable_variables))
-
-        with train_summary_writer.as_default():
-            tf.summary.scalar('loss', loss, step=batch_num)
-
-        if batch_num % 20 == 0:
-            print("Loss per symbol after {} batches: {}".format(
-                batch_num, loss / batch_valid_tokens))
+        model.train_step((train_french_batch, train_english_batch, labels, eng_padding_index, test_summary_writer, batch_num))
 
 
 @av.test_func
