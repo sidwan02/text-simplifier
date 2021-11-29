@@ -4,22 +4,12 @@ import tensorflow as tf
 import numpy as np
 from preprocess import *
 from transformer_model import Transformer_Seq2Seq
+from rnn_model import RNN_Seq2Seq
 import sys
 import random
 
 from attenvis import AttentionVis
 av = AttentionVis()
-
-import datetime
-
-# Clear any logs from previous runs
-# rm -rf ./logs/
-
-current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-train_log_dir = 'logs/gradient_tape/' + current_time + '/train'
-test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
-train_summary_writer = tf.summary.create_file_writer(train_log_dir)
-test_summary_writer = tf.summary.create_file_writer(test_log_dir)
 
 
 def train(model, train_french, train_english, eng_padding_index):
@@ -84,9 +74,6 @@ def train(model, train_french, train_english, eng_padding_index):
         model.optimizer.apply_gradients(
             zip(gradients, model.trainable_variables))
 
-        with train_summary_writer.as_default():
-            tf.summary.scalar('loss', loss, step=batch_num)
-
         if batch_num % 20 == 0:
             print("Loss per symbol after {} batches: {}".format(
                 batch_num, loss / batch_valid_tokens))
@@ -145,10 +132,6 @@ def test(model, test_french, test_english, eng_padding_index):
 
             acc = model.accuracy_function(probs, labels, mask)
             weighted_sum_acc += acc * batch_valid_tokens
-
-        with train_summary_writer.as_default():
-            tf.summary.scalar('loss', loss, step=batch_num)
-            tf.summary.scalar('accuracy', acc, step=batch_num)
 
     perplexity = tf.exp(acc_loss / total_valid_tokens)
     accuracy = weighted_sum_acc / total_valid_tokens
