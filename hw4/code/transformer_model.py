@@ -29,7 +29,7 @@ class Transformer_Seq2Seq(tf.keras.Model):
         # 2) Define embeddings, encoder, decoder, and feed forward layers
 
         # Define batch size and optimizer/learning rate
-        self.batch_size = 100
+        self.batch_size = 128
         self.embedding_size = 40
         self.optimizer = tf.keras.optimizers.Adam(0.001)
 
@@ -159,6 +159,49 @@ class Transformer_Seq2Seq(tf.keras.Model):
         #     tf.summary.scalar('loss', loss, step=batch_num)
 
         # print("Loss per symbol: {}".format(loss / batch_valid_tokens))
+
+    def reset(self):
+        self.weighted_sum_acc = 0
+        self.total_valid_tokens = 0
+        self.acc_loss = 0
+
+    def test_step(self, data):
+        # print("in train_step ===========================================")
+        eng_padding_index = 0
+        # train_french_batch, train_english_batch, labels, eng_padding_index, test_summary_writer, batch_num = data
+        train_french_batch, train_english_batch, labels = data
+
+
+        batch_valid_tokens = 0
+
+        # this is used later for the perp per symbol and acc per symbol calculations
+
+        # print(labels)
+
+        mask = []
+        for indexed_sentence in labels.numpy():
+            sentence_mask = [
+                0 if pad_index == eng_padding_index else 1 for pad_index in indexed_sentence]
+            mask.append(sentence_mask)
+            batch_valid_tokens += np.sum(sentence_mask)
+
+        mask = tf.convert_to_tensor(mask, dtype=tf.float32)
+
+        probs = self((train_french_batch, train_english_batch))
+        loss = self.loss_function(probs, labels, mask)
+
+        self.total_valid_tokens += batch_valid_tokens
+        self.acc_loss += loss
+
+        acc = self.accuracy_function(probs, labels, mask)
+        self.weighted_sum_acc += acc * batch_valid_tokens
+
+        perplexity = tf.exp(self.acc_loss / self.total_valid_tokens)
+        accuracy = self.weighted_sum_acc / self.total_valid_tokens
+
+        loss_per_symb = loss / batch_valid_tokens
+
+        return {"loss per symbol": loss_per_symb, "accuracy": accuracy, "perplexity": perplexity}
 
     def accuracy_function(self, prbs, labels, mask):
         """

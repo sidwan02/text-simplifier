@@ -168,14 +168,27 @@ def main():
 
 
     # ============
-    print("train_french.shape: ", train_french.shape)
-    print("train_english_trunc.shape: ", train_english_trunc.shape)
-    print("labels.shape: ", labels.shape)
+    # print("train_french.shape: ", train_french.shape)
+    # print("train_english_trunc.shape: ", train_english_trunc.shape)
+    # print("labels.shape: ", labels.shape)
 
     train_dataset = tf.data.Dataset.from_tensor_slices((train_french, train_english_trunc, labels))
-    train_dataset = train_dataset.batch(64)
+    train_dataset = train_dataset.batch(model.batch_size)
 
     model.fit(train_dataset, epochs=1, callbacks=[tensorboard_callback])
+
+    model.reset()
+
+    test_french = test_french[:, :]
+
+    test_english_trunc = test_english[:, :-1]
+
+    labels = test_english[:, 1:]
+
+    test_dataset = tf.data.Dataset.from_tensor_slices((test_french, test_english_trunc, labels))
+    test_dataset = test_dataset.batch(model.batch_size)
+
+    model.evaluate(test_dataset, callbacks=[tensorboard_callback])
 
     # TODO:
     # Train and Test Model for 1 epoch.
