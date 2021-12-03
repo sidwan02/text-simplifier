@@ -14,3 +14,5 @@ Resources:
 
 4. https://colab.research.google.com/github/borundev/ml_cookbook/blob/master/Custom%20Metric%20(Confusion%20Matrix)%20and%20train_step%20method.ipynb#scrollTo=cvJxvGHBSoHH
 5. https://neptune.ai/blog/keras-metrics
+
+6. https://www.tensorflow.org/tensorboard/hyperparameter_tuning_with_hparams

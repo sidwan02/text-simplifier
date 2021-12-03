@@ -14,7 +14,7 @@ av = AttentionVis()
 # mae_metric = tf.keras.metrics.Accuracy(name="accuracy")
 
 class Transformer_Seq2Seq(tf.keras.Model):
-    def __init__(self, french_window_size, french_vocab_size, english_window_size, english_vocab_size):
+    def __init__(self, french_window_size, french_vocab_size, english_window_size, english_vocab_size, hparams):
 
         ######vvv DO NOT CHANGE vvv##################
         super(Transformer_Seq2Seq, self).__init__()
@@ -33,7 +33,8 @@ class Transformer_Seq2Seq(tf.keras.Model):
         # Define batch size and optimizer/learning rate
         self.batch_size = 128
         self.embedding_size = 40
-        self.optimizer = tf.keras.optimizers.Adam(0.001)
+        # self.optimizer = tf.keras.optimizers.Adam(0.001)
+        self.optimizer = hparams['optimizer']
 
         # Define english and french embedding layers:
         self.E_english = tf.keras.layers.Embedding(
