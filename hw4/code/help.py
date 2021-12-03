@@ -1,9 +1,12 @@
-import tensorflow as tf
+def test(t):
+    return t
 
-a = tf.convert_to_tensor([[1, 2, 3, 4, 1, 2, 1], [1, 1, 2, 3, 2, 3, 2]])
+class ClassTest(object):
+    def test_def(self):
+        test_msg = test('Hi')
+        print(test_msg)
 
-ans = tf.where(a == 1, 0, 1)
-
-print(ans)
-
-print(tf.math.reduce_sum(ans))
+# # Creates new instance.
+# my_new_instance = ClassTest()
+# # Calls its attribute.
+# my_new_instance.test_def()
