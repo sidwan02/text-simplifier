@@ -21,24 +21,32 @@ from metrics import custom_loss, AccWeightedSum, Perplexity
 # rm -rf ./logs/
 
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-callback_log_dir = 'logs/fit/' + current_time
+# callback_log_dir = 'logs/fit/' + current_time
 hparams_log_dir = 'logs/hparam_tuning/' + current_time
 # train_log_dir = 'logs/gradient_tape/' + current_time + '/train'
 # test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
 
-tensorboard_callback = keras.callbacks.TensorBoard(log_dir=callback_log_dir, histogram_freq=1, update_freq='batch', embeddings_freq=1)
+# tensorboard_callback = keras.callbacks.TensorBoard(log_dir=callback_log_dir, histogram_freq=1, update_freq='batch', embeddings_freq=1)
 # train_summary_writer = tf.summary.create_file_writer(train_log_dir)
 # test_summary_writer = tf.summary.create_file_writer(test_log_dir)
 
 HP_OPTIMIZER = hp.HParam('optimizer', hp.Discrete(['adam', 'sgd']))
 
 
-with tf.summary.create_file_writer(hparams_log_dir).as_default():
-  hp.hparams_config(
+# with tf.summary.create_file_writer(hparams_log_dir).as_default():
+#   hp.hparams_config(
+#     hparams=[HP_OPTIMIZER],
+#     # https://stackoverflow.com/questions/56852300/hyperparameter-tuning-using-tensorboard-plugins-hparams-api-with-custom-loss-fun
+#     metrics=[hp.Metric('AccWeightedSum', display_name='acc_weighted_sum'), hp.Metric('Perplexity', display_name='perplexity')],
+#   )
+
+# with tf.summary.create_file_writer(hparams_log_dir).as_default():
+hp.hparams_config(
     hparams=[HP_OPTIMIZER],
     # https://stackoverflow.com/questions/56852300/hyperparameter-tuning-using-tensorboard-plugins-hparams-api-with-custom-loss-fun
     metrics=[hp.Metric('AccWeightedSum', display_name='acc_weighted_sum'), hp.Metric('Perplexity', display_name='perplexity')],
-  )
+    )
+
 
 def main():
     if len(sys.argv) != 2 or sys.argv[1] not in {"RNN", "TRANSFORMER"}:
@@ -66,7 +74,6 @@ def main():
 
     labels = train_english[:1000, 1:]
 
-
     # ============
     # print("train_french.shape: ", train_french.shape)
     # print("train_english_trunc.shape: ", train_english_trunc.shape)
@@ -89,7 +96,7 @@ def main():
 
 
     
-    def run(hparams):
+    def run(hparams, logdir):
         print("hparams: ", hparams)
 
         model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
@@ -108,7 +115,14 @@ def main():
         # ============
         # perplexity_metric = tf.keras.metrics.Mean(name="perplexity")
 
-        model.fit(train_dataset, epochs=10, callbacks=[tensorboard_callback], validation_data=(test_dataset))
+        model.fit(
+            train_dataset, 
+            epochs=3, 
+            callbacks=[
+                keras.callbacks.TensorBoard(log_dir=logdir, histogram_freq=1, update_freq='batch', embeddings_freq=1), 
+                hp.KerasCallback(logdir, hparams)
+                ], 
+            validation_data=(test_dataset))
 
         # model.reset()
 
@@ -130,7 +144,7 @@ def main():
         run_name = "run-%d" % session_num
         print('--- Starting trial: %s' % run_name)
         print({h: hparams[h] for h in hparams})
-        run(hparams)
+        run(hparams, hparams_log_dir + run_name)
         session_num += 1
 
 
