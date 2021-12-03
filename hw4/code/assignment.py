@@ -15,7 +15,7 @@ import datetime
 
 from tensorboard.plugins.hparams import api as hp
 
-from metrics import loss_per_symbol, AccWeightedSum, Perplexity
+from metrics import custom_loss, AccWeightedSum, Perplexity
 
 # Clear any logs from previous runs
 # rm -rf ./logs/
@@ -25,7 +25,7 @@ callback_log_dir = 'logs/fit/' + current_time
 # train_log_dir = 'logs/gradient_tape/' + current_time + '/train'
 # test_log_dir = 'logs/gradient_tape/' + current_time + '/test'
 
-tensorboard_callback = keras.callbacks.TensorBoard(callback_log_dir)
+tensorboard_callback = keras.callbacks.TensorBoard(log_dir=callback_log_dir, histogram_freq=1, update_freq='batch', embeddings_freq=1)
 # train_summary_writer = tf.summary.create_file_writer(train_log_dir)
 # test_summary_writer = tf.summary.create_file_writer(test_log_dir)
 
@@ -61,6 +61,8 @@ def main():
         '../../data/fls.txt', '../../data/els.txt', '../../data/flt.txt', '../../data/elt.txt')
     print("Preprocessing complete.")
 
+    print("eng_padding_index ======================: ", eng_padding_index)
+
     model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
                   ENGLISH_WINDOW_SIZE, len(english_vocab))
     if sys.argv[1] == "RNN":
@@ -72,7 +74,7 @@ def main():
     # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
     # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
     
-    model.compile(optimizer=model.optimizer, loss=loss_per_symbol, metrics=[AccWeightedSum, Perplexity], run_eagerly=True)
+    model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
 
     # ============
 

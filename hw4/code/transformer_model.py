@@ -60,11 +60,6 @@ class Transformer_Seq2Seq(tf.keras.Model):
         self.dense_4 = tf.keras.layers.Dense(
             self.english_vocab_size, activation="softmax")
 
-        self.weighted_sum_acc = 0
-        self.total_valid_tokens = 0
-        self.acc_loss = 0
-
-        self.is_training = True
 
     @tf.function
     def call(self, inputs):
@@ -110,9 +105,14 @@ class Transformer_Seq2Seq(tf.keras.Model):
     def train_step(self, data):
         train_french_batch, train_english_batch, labels = data
 
+        
+
         with tf.GradientTape() as tape:
             probs = self((train_french_batch, train_english_batch))
             loss =  self.compiled_loss(y_true=labels, y_pred=probs)
+
+        # print("probs: ", probs)
+        # print("loss: ---", loss)
 
         gradients = tape.gradient(loss, self.trainable_variables)
         self.optimizer.apply_gradients(
