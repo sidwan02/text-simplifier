@@ -13,6 +13,8 @@ av = AttentionVis()
 
 import datetime
 
+from tensorboard.plugins.hparams import api as hp
+
 # Clear any logs from previous runs
 # rm -rf ./logs/
 
@@ -25,6 +27,20 @@ tensorboard_callback = keras.callbacks.TensorBoard(callback_log_dir)
 # train_summary_writer = tf.summary.create_file_writer(train_log_dir)
 # test_summary_writer = tf.summary.create_file_writer(test_log_dir)
 
+# HP_NUM_UNITS = hp.HParam('num_units', hp.Discrete([16, 32]))
+# HP_DROPOUT = hp.HParam('dropout', hp.RealInterval(0.1, 0.2))
+# HP_OPTIMIZER = hp.HParam('optimizer', hp.Discrete(['adam', 'sgd']))
+
+# hparam_log_dir = 'logs/hparam_tuning' + current_time
+
+
+# with tf.summary.create_file_writer(hparam_log_dir).as_default():
+#   hp.hparams_config(
+#     hparams=[HP_NUM_UNITS, HP_DROPOUT, HP_OPTIMIZER],
+#     metrics=[hp.Metric(METRIC_ACCURACY, display_name='Accuracy')],
+#   )
+
+# hparam_callback = hp.KerasCallback(logdir, hparams)
 
 def main():
     if len(sys.argv) != 2 or sys.argv[1] not in {"RNN", "TRANSFORMER"}:
@@ -51,7 +67,10 @@ def main():
         model = Transformer_Seq2Seq(*model_args)
 
     # model.compile(optimizer=model.optimizer, run_eagerly=True)
-    model.compile(optimizer=model.optimizer, run_eagerly=True)
+    loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
+    acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
+    
+    model.compile(optimizer=model.optimizer, metrics=[loss_per_symbol_metric, acc_weighted_sum_metric], run_eagerly=True)
 
     # ============
 
@@ -80,6 +99,11 @@ def main():
 
     test_dataset = tf.data.Dataset.from_tensor_slices((test_french, test_english_trunc, labels))
     test_dataset = test_dataset.batch(model.batch_size)
+
+        
+
+    
+    # perplexity_metric = tf.keras.metrics.Mean(name="perplexity")
 
     model.fit(train_dataset, epochs=10, callbacks=[tensorboard_callback], validation_data=(test_dataset))
 

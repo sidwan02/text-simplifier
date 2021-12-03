@@ -8,8 +8,9 @@ av = AttentionVis()
 
 
 
-loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
-acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
+# loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
+# acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
+# perplexity_metric = tf.keras.metrics.Mean(name="perplexity")
 # mae_metric = tf.keras.metrics.Accuracy(name="accuracy")
 
 class Transformer_Seq2Seq(tf.keras.Model):
@@ -62,6 +63,8 @@ class Transformer_Seq2Seq(tf.keras.Model):
         self.weighted_sum_acc = 0
         self.total_valid_tokens = 0
         self.acc_loss = 0
+
+        self.is_training = True
 
     @tf.function
     def call(self, inputs):
@@ -157,15 +160,20 @@ class Transformer_Seq2Seq(tf.keras.Model):
         perplexity = tf.exp(self.acc_loss / self.total_valid_tokens)
         # accuracy = self.weighted_sum_acc / self.total_valid_tokens
 
+        if len(self.metrics) >= 1:
+            self.metrics[0].update_state(loss / batch_valid_tokens)
+        if len(self.metrics) >= 2:
+            self.metrics[1].update_state(acc, sample_weight=batch_valid_tokens)
 
-        loss_per_symbol_metric.update_state(loss / batch_valid_tokens)
-        acc_weighted_sum_metric.update_state(acc, sample_weight=batch_valid_tokens)
+        # loss_per_symbol_metric.update_state(loss / batch_valid_tokens)
+        # acc_weighted_sum_metric.update_state(acc, sample_weight=batch_valid_tokens)
+        # perplexity_metric.update_state(perplexity)
 
         # return {"loss per symbol": loss_per_symb, "accuracy": accuracy, "perplexity": perplexity}
-        return {"loss per symbol": loss_per_symbol_metric.result(), "accuracy": acc_weighted_sum_metric.result()}
+        # return {"loss per symbol": loss_per_symbol_metric.result(), "accuracy": acc_weighted_sum_metric.result(), "perplexity": perplexity_metric.result()}
 
         # Return a dict mapping metric names to current value
-        # return {m.name: m.result() for m in self.metrics}
+        return {m.name: m.result() for m in self.metrics}
 
         # with test_summary_writer.as_default():
         #     tf.summary.scalar('loss', loss, step=batch_num)
@@ -178,6 +186,10 @@ class Transformer_Seq2Seq(tf.keras.Model):
         self.acc_loss = 0
 
     def test_step(self, data):
+        if self.is_training:
+            self.reset()
+            self.is_training = False
+
         # print("in train_step ===========================================")
         eng_padding_index = 0
         # train_french_batch, train_english_batch, labels, eng_padding_index, test_summary_writer, batch_num = data
@@ -212,20 +224,27 @@ class Transformer_Seq2Seq(tf.keras.Model):
         # accuracy = self.weighted_sum_acc / self.total_valid_tokens
 
 
-        loss_per_symbol_metric.update_state(loss / batch_valid_tokens)
-        acc_weighted_sum_metric.update_state(acc, sample_weight=batch_valid_tokens)
+        # loss_per_symbol_metric.update_state(loss / batch_valid_tokens)
+        # acc_weighted_sum_metric.update_state(acc, sample_weight=batch_valid_tokens)
+
+        if len(self.metrics) >= 1:
+            self.metrics[0].update_state(loss / batch_valid_tokens)
+        if len(self.metrics) >= 2:
+            self.metrics[1].update_state(acc, sample_weight=batch_valid_tokens)
+
+        return {m.name: m.result() for m in self.metrics}
 
         # return {"loss per symbol": loss_per_symb, "accuracy": accuracy, "perplexity": perplexity}
-        return {"loss per symbol": loss_per_symbol_metric.result(), "accuracy": acc_weighted_sum_metric.result()}
+        # return {"loss per symbol": loss_per_symbol_metric.result(), "accuracy": acc_weighted_sum_metric.result()}
 
-    @property
-    def metrics(self):
-        # We list our `Metric` objects here so that `reset_states()` can be
-        # called automatically at the start of each epoch
-        # or at the start of `evaluate()`.
-        # If you don't implement this property, you have to call
-        # `reset_states()` yourself at the time of your choosing.
-        return [loss_per_symbol_metric, acc_weighted_sum_metric]
+    # @property
+    # def metrics(self):
+    #     # We list our `Metric` objects here so that `reset_states()` can be
+    #     # called automatically at the start of each epoch
+    #     # or at the start of `evaluate()`.
+    #     # If you don't implement this property, you have to call
+    #     # `reset_states()` yourself at the time of your choosing.
+    #     return [loss_per_symbol_metric, acc_weighted_sum_metric, perplexity_metric]
 
     def accuracy_function(self, prbs, labels, mask):
         """
