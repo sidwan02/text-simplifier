@@ -108,143 +108,30 @@ class Transformer_Seq2Seq(tf.keras.Model):
         return probs
 
     def train_step(self, data):
-        # print("in train_step ===========================================")
-        eng_padding_index = 0
-        # train_french_batch, train_english_batch, labels, eng_padding_index, test_summary_writer, batch_num = data
         train_french_batch, train_english_batch, labels = data
 
-
-
-
-        batch_valid_tokens = 0
-
-        # this is used later for the perp per symbol and acc per symbol calculations
-
-        # print(labels)
-
-
-
-        # mask = []
-        # for indexed_sentence in labels.numpy():
-        #     sentence_mask = [
-        #         0 if pad_index == eng_padding_index else 1 for pad_index in indexed_sentence]
-        #     mask.append(sentence_mask)
-        #     batch_valid_tokens += np.sum(sentence_mask)
-
-        # mask = tf.convert_to_tensor(mask, dtype=tf.float32)
-
-        mask = tf.where(labels == eng_padding_index, 0, 1)
-
-        batch_valid_tokens += tf.cast(tf.math.reduce_sum(mask), dtype=tf.float32)
-        
         with tf.GradientTape() as tape:
             probs = self((train_french_batch, train_english_batch))
-            loss = self.loss_function(probs, labels, mask)
+            loss =  self.compiled_loss(y_true=labels, y_pred=probs)
 
         gradients = tape.gradient(loss, self.trainable_variables)
         self.optimizer.apply_gradients(
             zip(gradients, self.trainable_variables))
 
         # Update metrics (includes the metric that tracks the loss)
-        # self.compiled_metrics.update_state(probs, labels, mask)
-
-        # loss_per_symbol_metric.update_state(loss)
-        # mae_metric.update_state(probs, labels)
-
-        self.total_valid_tokens += batch_valid_tokens
-        # self.acc_loss += loss
-
-        acc = self.accuracy_function(probs, labels, mask)
-        # self.weighted_sum_acc += acc * batch_valid_tokens
-
-        perplexity = tf.exp(self.acc_loss / self.total_valid_tokens)
-        # accuracy = self.weighted_sum_acc / self.total_valid_tokens
-
-        if len(self.metrics) >= 1:
-            self.metrics[0].update_state(loss / batch_valid_tokens)
-        if len(self.metrics) >= 2:
-            self.metrics[1].update_state(acc, sample_weight=batch_valid_tokens)
-
-        # loss_per_symbol_metric.update_state(loss / batch_valid_tokens)
-        # acc_weighted_sum_metric.update_state(acc, sample_weight=batch_valid_tokens)
-        # perplexity_metric.update_state(perplexity)
-
-        # return {"loss per symbol": loss_per_symb, "accuracy": accuracy, "perplexity": perplexity}
-        # return {"loss per symbol": loss_per_symbol_metric.result(), "accuracy": acc_weighted_sum_metric.result(), "perplexity": perplexity_metric.result()}
+        self.compiled_metrics.update_state(y_pred=probs, y_true=labels)
 
         # Return a dict mapping metric names to current value
         return {m.name: m.result() for m in self.metrics}
 
-        # with test_summary_writer.as_default():
-        #     tf.summary.scalar('loss', loss, step=batch_num)
-
-        # print("Loss per symbol: {}".format(loss / batch_valid_tokens))
-
-    def reset(self):
-        self.weighted_sum_acc = 0
-        self.total_valid_tokens = 0
-        self.acc_loss = 0
-
     def test_step(self, data):
-        if self.is_training:
-            self.reset()
-            self.is_training = False
+        test_french_batch, test_english_batch, labels = data
 
-        # print("in train_step ===========================================")
-        eng_padding_index = 0
-        # train_french_batch, train_english_batch, labels, eng_padding_index, test_summary_writer, batch_num = data
-        train_french_batch, train_english_batch, labels = data
+        probs = self((test_french_batch, test_english_batch))
+        loss = self.compiled_loss(y_true=labels, y_pred=probs)
 
-
-        batch_valid_tokens = 0
-
-        # this is used later for the perp per symbol and acc per symbol calculations
-
-        # print(labels)
-
-        mask = []
-        for indexed_sentence in labels.numpy():
-            sentence_mask = [
-                0 if pad_index == eng_padding_index else 1 for pad_index in indexed_sentence]
-            mask.append(sentence_mask)
-            batch_valid_tokens += np.sum(sentence_mask)
-
-        mask = tf.convert_to_tensor(mask, dtype=tf.float32)
-
-        probs = self((train_french_batch, train_english_batch))
-        loss = self.loss_function(probs, labels, mask)
-
-        self.total_valid_tokens += batch_valid_tokens
-        # self.acc_loss += loss
-
-        acc = self.accuracy_function(probs, labels, mask)
-        # self.weighted_sum_acc += acc * batch_valid_tokens
-
-        perplexity = tf.exp(self.acc_loss / self.total_valid_tokens)
-        # accuracy = self.weighted_sum_acc / self.total_valid_tokens
-
-
-        # loss_per_symbol_metric.update_state(loss / batch_valid_tokens)
-        # acc_weighted_sum_metric.update_state(acc, sample_weight=batch_valid_tokens)
-
-        if len(self.metrics) >= 1:
-            self.metrics[0].update_state(loss / batch_valid_tokens)
-        if len(self.metrics) >= 2:
-            self.metrics[1].update_state(acc, sample_weight=batch_valid_tokens)
-
+        self.compiled_metrics.update_state(y_pred=probs, y_true=labels)
         return {m.name: m.result() for m in self.metrics}
-
-        # return {"loss per symbol": loss_per_symb, "accuracy": accuracy, "perplexity": perplexity}
-        # return {"loss per symbol": loss_per_symbol_metric.result(), "accuracy": acc_weighted_sum_metric.result()}
-
-    # @property
-    # def metrics(self):
-    #     # We list our `Metric` objects here so that `reset_states()` can be
-    #     # called automatically at the start of each epoch
-    #     # or at the start of `evaluate()`.
-    #     # If you don't implement this property, you have to call
-    #     # `reset_states()` yourself at the time of your choosing.
-    #     return [loss_per_symbol_metric, acc_weighted_sum_metric, perplexity_metric]
 
     def accuracy_function(self, prbs, labels, mask):
         """

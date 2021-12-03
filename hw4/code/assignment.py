@@ -15,6 +15,8 @@ import datetime
 
 from tensorboard.plugins.hparams import api as hp
 
+from metrics import loss_per_symbol, AccWeightedSum, Perplexity
+
 # Clear any logs from previous runs
 # rm -rf ./logs/
 
@@ -67,10 +69,10 @@ def main():
         model = Transformer_Seq2Seq(*model_args)
 
     # model.compile(optimizer=model.optimizer, run_eagerly=True)
-    loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
-    acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
+    # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
+    # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
     
-    model.compile(optimizer=model.optimizer, metrics=[loss_per_symbol_metric, acc_weighted_sum_metric], run_eagerly=True)
+    model.compile(optimizer=model.optimizer, loss=loss_per_symbol, metrics=[AccWeightedSum, Perplexity], run_eagerly=True)
 
     # ============
 
