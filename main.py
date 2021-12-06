@@ -6,6 +6,7 @@ from preprocess import *
 from simplifier_model import Transformer_Seq2Seq
 import sys
 import random
+import re
 
 
 UNK_TOKEN = "*UNK*"
@@ -132,15 +133,40 @@ def probs_to_words(probs):
 	
 	return tf.strings.as_string(probable_sentence)
 
-def convert_to_id(vocab, sentences):
-  """
-  Convert sentences to indexed
-  :param vocab:  dictionary, word --> unique index
-  :param sentences:  list of lists of words, each representing padded sentence
-  :return: numpy array of integers, with each row representing the word indeces in the corresponding sentences
-  """
-  return np.stack([[vocab[word] if word in vocab else vocab[UNK_TOKEN] for word in sentence] for sentence in sentences])
-
+def parse(text_input):
+	"""
+ 	Transforms a string into a list of sentences, which are lists of words.
+  
+	:text_input: the text to be parsed
+	:returns: parsed text
+	"""
+	non_alpha_numeric = '[^A-Za-z0-9]'
+	# add spaces before punctuation
+	processed_text = []
+	sentences = text_input.split(".")
+	while '' in sentences:
+		sentences.remove('')
+  
+	for s in sentences:
+		processed_sentence = []
+		sans_puntuation = re.split(non_alpha_numeric, s)
+		punctuation = re.findall(non_alpha_numeric, s)
+		i = 0
+		while True:
+			try:
+				processed_sentence.append(sans_puntuation[i])
+				processed_sentence.append(punctuation[i])
+				i += 1
+			except:
+				while ' ' in processed_sentence:
+				  processed_sentence.remove(' ')
+				while '' in processed_sentence:
+				  processed_sentence.remove('')
+				processed_sentence.append('.')
+				break
+		processed_text.append(processed_sentence)
+	return processed_text
+		
 def simplify(model, text_input, simplification_strength=1):
 	"""
 	Passes input to the trained model recursively by a given number of times to simplify the input by simplifcation_strength levels
@@ -151,7 +177,6 @@ def simplify(model, text_input, simplification_strength=1):
 	:returns: the simplified text as a string
 	"""
 	# note: you can feed input into the model as usual with model.call()
- #TODO: actually write the parse function
  #TODO: the call function takes TWO inputs; what should we do about that?
 	if simplification_strength < 1:
 		return text_input
@@ -163,7 +188,6 @@ def simplify(model, text_input, simplification_strength=1):
 	else:
 		return simplify(model, simplified, simplification_strength - 1)
 	
-
 def main():	
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
