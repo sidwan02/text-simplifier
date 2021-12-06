@@ -109,34 +109,6 @@ def test(model, test_complex, test_simple, simple_padding_index):
 	print("ACC: ", avg_acc)
 	return perplexity, avg_acc
 
-def save_model_weights(model):
-	"""
-	Save trained model weights to model_ckpts/
-
-	Inputs:
-	- model: Trained model.
-	"""
-	output_dir = "model_weights" #os.path.join("model_weights", model_flag)
-	output_path = os.path.join(output_dir, "transformer_weights")
-	os.makedirs("model_weights", exist_ok=True)
-	os.makedirs(output_dir, exist_ok=True)
-	model.save_weights(output_path)
-
-def load_weights(model):
-	"""
-    Load a trained model's weights.
-
-    Inputs:
-    - model: Untrained model instance.
-    Returns:
-    - model: Trained model.
-    """
-	# inputs = tf.zeros([1,1,28,28])  # Random data sample
-	# labels = tf.constant([[0]])
-	weights_path = os.path.join("model_weights", "transformer_weights")
-	# _ = model(inputs)
-	model.load_weights(weights_path)
-	return model
 
 def probs_to_words(probs):
 	"""
@@ -148,14 +120,14 @@ def probs_to_words(probs):
 	"""
 	# note: for each item in a window in probs, there will be a probability distribution across all vocab_size words => pick the highest probability word? 
 	# up to you whether the return type is a list of individual word strings or a string concatenation
-        # WE'RE GOING WITH CONCATENATION
+		# WE'RE GOING WITH CONCATENATION
 	sentence = []
 	probable_tokens = tf.argmax(probs, axis=1)
-    #TODO: name of dictionary
-    probable_words = tf.map_fn(lam(token): dictionary[token], probable_tokens)
-    probable_sentence = tf.join(probable_words, separator=' ')
-    
-    return tf.strings.as_string(probable_sentence)
+	#TODO: name of dictionary
+	probable_words = tf.map_fn(lam(token): dictionary[token], probable_tokens)
+	probable_sentence = tf.join(probable_words, separator=' ')
+	
+	return tf.strings.as_string(probable_sentence)
 
 def convert_to_id(vocab, sentences):
   """
@@ -178,16 +150,16 @@ def simplify(model, text_input, simplification_strength=1):
 	# note: you can feed input into the model as usual with model.call()
  #TODO: actually write the parse function
  #TODO: the call function takes TWO inputs; what should we do about that?
-    if simplification_strength < 1:
-        return text_input
-    processed_text = convert_to_id(model.complex_vocab, parse(text_input))
-    probs = model.call(processed_text)
-    simplified = probs_to_words(text_input)
-    if simplification_strength == 1:
-        return simplified
-    else:
-        return simplify(model, simplified, simplification_strength - 1)
-    
+	if simplification_strength < 1:
+		return text_input
+	processed_text = convert_to_id(model.complex_vocab, parse(text_input))
+	probs = model.call(processed_text)
+	simplified = probs_to_words(text_input)
+	if simplification_strength == 1:
+		return simplified
+	else:
+		return simplify(model, simplified, simplification_strength - 1)
+	
 
 def main():	
 
@@ -196,16 +168,12 @@ def main():
 	print("Preprocessing complete.")
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
-	# if sys.argv[1] == "RNN":
-	# 	model = RNN_Seq2Seq(*model_args)
-	# if sys.argv[1] == "TRANSFORMER":
 	model = Transformer_Seq2Seq(*model_args) 
 	
 	# Train and Test Model for 1 epoch.
 	train(model, train_complex, train_simple, simple_padding_index)
 	print("TESTING=================")
 	test(model, test_complex, test_simple, simple_padding_index)
-	save_model_weights(model)
 
 	pass
 
