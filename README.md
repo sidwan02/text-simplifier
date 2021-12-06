@@ -17,3 +17,6 @@ Resources:
 
 6. https://www.tensorflow.org/tensorboard/hyperparameter_tuning_with_hparams
 7. https://github.com/tensorflow/tensorboard/issues/2348
+
+8. https://stackoverflow.com/questions/51806852/cant-save-custom-subclassed-model
+9. https://machinelearningmastery.com/save-load-keras-deep-learning-models/

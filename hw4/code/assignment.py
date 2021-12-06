@@ -58,7 +58,7 @@ hp.hparams_config(
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in {"RUN", "TUNING"}:
+    if len(sys.argv) != 2 or sys.argv[1] not in {"SAVE", "TUNING", "LOAD"}:
         print("USAGE: python assignment.py <Model Type>")
         print("<Model Type>: [RUN/TUNING]")
         exit()
@@ -100,7 +100,55 @@ def main():
     test_dataset = tf.data.Dataset.from_tensor_slices((test_french, test_english_trunc, labels))
     test_dataset = test_dataset.batch(128)
 
+    def save_trained_weights(hparams):
+        model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
+                    ENGLISH_WINDOW_SIZE, len(english_vocab), hparams)
+        # if sys.argv[1] == "RNN":
+        #     model = RNN_Seq2Seq(*model_args)
+        # elif sys.argv[1] == "TRANSFORMER":
+        model = Transformer_Seq2Seq(*model_args)
 
+        # model.compile(optimizer=model.optimizer, run_eagerly=True)
+        # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
+        # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
+        
+        model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
+
+        # ============
+        # perplexity_metric = tf.keras.metrics.Mean(name="perplexity")
+
+        model.fit(
+            train_dataset, 
+            epochs=3, 
+            # callbacks=[
+            #     keras.callbacks.TensorBoard(log_dir=logdir, histogram_freq=1, update_freq='batch', embeddings_freq=1), 
+            #     hp.KerasCallback(logdir, hparams)
+            #     ], 
+            validation_data=test_dataset
+            )
+
+
+        model.save_weights("model.h5")
+
+    def evaluate_model_from_loaded_weights(hparams):
+        model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
+                    ENGLISH_WINDOW_SIZE, len(english_vocab), hparams)
+        # if sys.argv[1] == "RNN":
+        #     model = RNN_Seq2Seq(*model_args)
+        # elif sys.argv[1] == "TRANSFORMER":
+        model = Transformer_Seq2Seq(*model_args)
+
+        # model.compile(optimizer=model.optimizer, run_eagerly=True)
+        # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
+        # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
+
+        model.load_weights("model.h5")
+        
+        model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
+
+        score = model.evaluate(X, Y, verbose=0)
+
+        print("score: ", score)
 
     
     def run(hparams, logdir):
@@ -132,10 +180,7 @@ def main():
             validation_data=test_dataset
             )
 
-        # !mkdir -p saved_model
-        if sys.argv[1] == "RUN":
-            # model.save_weights("ckpt")
-            model.save_weights("model.h5")
+
             # model.save('my_model', save_format="tf")
 
         # model.evaluate(
@@ -154,27 +199,45 @@ def main():
         # av.show_atten_heatmap()
         pass
 
-    if sys.argv[1] == "TUNING":
+    
+    if sys.argv[1] == "SAVE":
+        ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001]))
+        hparams = {
+            'adam_lr': ADAM_LR.domain.values[0],
+        }
+
+        save_trained_weights(hparams)
+
+    elif sys.argv[1] == "LOAD":
+        ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001]))
+
+        hparams = {
+            'adam_lr': ADAM_LR.domain.values[0],
+        }
+
+        evaluate_model_from_loaded_weights(hparams)
+
+    elif sys.argv[1] == "TUNING":
         l = np.arange(0.0001, 0.01 + 0.0001, 0.0005)
         print("l: ", l)
         ADAM_LR = hp.HParam('adam_lr', hp.Discrete(l.tolist()))
-
-    elif sys.argv[1] == "RUN":
-        ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001]))
-
-    # av.setup_visualization(enable=True)
-    session_num = 0
-
-    # https://stackoverflow.com/questions/56559627/what-are-hp-discrete-and-hp-realinterval-can-i-include-more-values-in-hp-realin
-    for optimizer in ADAM_LR.domain.values:
         hparams = {
-            'adam_lr': optimizer,
+            'adam_lr': ADAM_LR.domain.values[0],
         }
-        run_name = "run-%d" % session_num
-        print('--- Starting trial: %s' % run_name)
-        print({h: hparams[h] for h in hparams})
-        run(hparams, hparams_log_dir + run_name)
-        session_num += 1
+
+        # av.setup_visualization(enable=True)
+        session_num = 0
+
+        # https://stackoverflow.com/questions/56559627/what-are-hp-discrete-and-hp-realinterval-can-i-include-more-values-in-hp-realin
+        for optimizer in ADAM_LR.domain.values:
+            hparams = {
+                'adam_lr': optimizer,
+            }
+            run_name = "run-%d" % session_num
+            print('--- Starting trial: %s' % run_name)
+            print({h: hparams[h] for h in hparams})
+            run(hparams, hparams_log_dir + run_name)
+            session_num += 1
 
 
 
