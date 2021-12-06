@@ -3,8 +3,14 @@ import tensorflow as tf
 import numpy as np
 
 from attenvis import AttentionVis
+import random
+
+import string
+
 av = AttentionVis()
 
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return ''.join(random.choice(chars) for _ in range(size))
 
 @av.att_mat_func
 def Attention_Matrix(K, Q, use_mask=False):
@@ -64,11 +70,11 @@ class Atten_Head(tf.keras.layers.Layer):
         self.window_size = 14
 
         self.weight_K = self.add_weight(
-            "w_K", shape=[input_size, output_size])
+            "w_K-" + id_generator(), shape=[input_size, output_size])
         self.weight_V = self.add_weight(
-            "w_V", shape=[input_size, output_size])
+            "w_V-" + id_generator(), shape=[input_size, output_size])
         self.weight_Q = self.add_weight(
-            "w_Q", shape=[input_size, output_size])
+            "w_Q-" + id_generator(), shape=[input_size, output_size])
 
     @tf.function
     def call(self, inputs_for_keys, inputs_for_values, inputs_for_queries):
@@ -222,7 +228,7 @@ class Position_Encoding_Layer(tf.keras.layers.Layer):
     def __init__(self, window_sz, emb_sz):
         super(Position_Encoding_Layer, self).__init__()
         self.positional_embeddings = self.add_weight(
-            "pos_embed", shape=[window_sz, emb_sz])
+            "pos_embed-" + id_generator(), shape=[window_sz, emb_sz])
 
     @tf.function
     def call(self, x):

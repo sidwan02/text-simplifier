@@ -20,3 +20,4 @@ Resources:
 
 8. https://stackoverflow.com/questions/51806852/cant-save-custom-subclassed-model
 9. https://machinelearningmastery.com/save-load-keras-deep-learning-models/
+10. https://github.com/tensorflow/tensorflow/issues/27688#issuecomment-595950270

@@ -106,6 +106,8 @@ class Transformer_Seq2Seq(tf.keras.Model):
     def train_step(self, data):
         train_french_batch, train_english_batch, labels = data
 
+        # print("GOOGOO: ", train_french_batch.shape)
+        # print("GAGA: ", train_english_batch.shape)
         
 
         with tf.GradientTape() as tape:

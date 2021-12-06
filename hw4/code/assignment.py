@@ -127,6 +127,8 @@ def main():
             validation_data=test_dataset
             )
 
+        model((np.zeros((128, 14)), np.zeros((128, 14))))
+
 
         model.save_weights("model.h5")
 
@@ -142,11 +144,15 @@ def main():
         # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
         # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
 
+        # model.build(input_shape=(128, 1, 28, 28))
+        model((np.zeros((128, 14)), np.zeros((128, 14))))
+        
         model.load_weights("model.h5")
         
         model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
 
-        score = model.evaluate(X, Y, verbose=0)
+
+        score = model.evaluate(test_dataset, verbose=0)
 
         print("score: ", score)
 
