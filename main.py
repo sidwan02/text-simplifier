@@ -159,9 +159,9 @@ def parse(text_input):
 				i += 1
 			except:
 				while ' ' in processed_sentence:
-				  processed_sentence.remove(' ')
+					processed_sentence.remove(' ')
 				while '' in processed_sentence:
-				  processed_sentence.remove('')
+					processed_sentence.remove('')
 				processed_sentence.append('.')
 				break
 		processed_text.append(processed_sentence)
