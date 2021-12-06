@@ -9,6 +9,9 @@ import random
 
 
 UNK_TOKEN = "*UNK*"
+print("Running preprocessing...")
+train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('../../data/fls.txt','../../data/els.txt','../../data/flt.txt','../../data/elt.txt')
+print("Preprocessing complete.")
 
 def train(model, train_complex, train_simple, simple_padding_index):
 	"""
@@ -162,10 +165,6 @@ def simplify(model, text_input, simplification_strength=1):
 	
 
 def main():	
-
-	print("Running preprocessing...")
-	train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('../../data/fls.txt','../../data/els.txt','../../data/flt.txt','../../data/elt.txt')
-	print("Preprocessing complete.")
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
 	model = Transformer_Seq2Seq(*model_args) 
