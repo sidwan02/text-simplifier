@@ -16,3 +16,4 @@ Resources:
 5. https://neptune.ai/blog/keras-metrics
 
 6. https://www.tensorflow.org/tensorboard/hyperparameter_tuning_with_hparams
+7. https://github.com/tensorflow/tensorboard/issues/2348

@@ -34,7 +34,7 @@ class Transformer_Seq2Seq(tf.keras.Model):
         self.batch_size = 128
         self.embedding_size = 40
         # self.optimizer = tf.keras.optimizers.Adam(0.001)
-        self.optimizer = hparams['optimizer']
+        self.optimizer = tf.keras.optimizers.Adam(hparams['adam_lr'])
 
         # Define english and french embedding layers:
         self.E_english = tf.keras.layers.Embedding(

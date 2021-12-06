@@ -30,7 +30,14 @@ hparams_log_dir = 'logs/hparam_tuning/' + current_time
 # train_summary_writer = tf.summary.create_file_writer(train_log_dir)
 # test_summary_writer = tf.summary.create_file_writer(test_log_dir)
 
-HP_OPTIMIZER = hp.HParam('optimizer', hp.Discrete(['adam', 'sgd']))
+# ADAM_1 = tf.keras.optimizers.Adam(0.001)
+# ADAM_2 = tf.keras.optimizers.Adam(0.001)
+
+l = np.arange(0.0001, 0.01 + 0.0001, 0.0005)
+print("l: ", l)
+
+ADAM_LR = hp.HParam('adam_lr', hp.Discrete(l.tolist()))
+# ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.0001, 0.01]))
 
 
 # with tf.summary.create_file_writer(hparams_log_dir).as_default():
@@ -42,24 +49,24 @@ HP_OPTIMIZER = hp.HParam('optimizer', hp.Discrete(['adam', 'sgd']))
 
 # with tf.summary.create_file_writer(hparams_log_dir).as_default():
 hp.hparams_config(
-    hparams=[HP_OPTIMIZER],
+    hparams=[ADAM_LR],
     # https://stackoverflow.com/questions/56852300/hyperparameter-tuning-using-tensorboard-plugins-hparams-api-with-custom-loss-fun
     metrics=[hp.Metric('AccWeightedSum', display_name='acc_weighted_sum'), hp.Metric('Perplexity', display_name='perplexity')],
     )
 
+    
+
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in {"RNN", "TRANSFORMER"}:
+    if len(sys.argv) != 2 or sys.argv[1] not in {"RUN", "TUNING"}:
         print("USAGE: python assignment.py <Model Type>")
-        print("<Model Type>: [RNN/TRANSFORMER]")
+        print("<Model Type>: [RUN/TUNING]")
         exit()
 
     # Change this to "True" to turn on the attention matrix visualization.
     # You should turn this on once you feel your code is working.
     # Note that it is designed to work with transformers that have single attention heads.
-    # if sys.argv[1] == "TRANSFORMER":
-    av.setup_visualization(enable=True)
-
+    
     print("Running preprocessing...")
     train_english, test_english, train_french, test_french, english_vocab, french_vocab, eng_padding_index = get_data(
         '../../data/fls.txt', '../../data/els.txt', '../../data/flt.txt', '../../data/elt.txt')
@@ -122,7 +129,19 @@ def main():
                 keras.callbacks.TensorBoard(log_dir=logdir, histogram_freq=1, update_freq='batch', embeddings_freq=1), 
                 hp.KerasCallback(logdir, hparams)
                 ], 
-            validation_data=(test_dataset))
+            validation_data=test_dataset
+            )
+
+        # !mkdir -p saved_model
+        if sys.argv[1] == "RUN":
+            # model.save_weights("ckpt")
+            model.save_weights("model.h5")
+            # model.save('my_model', save_format="tf")
+
+        # model.evaluate(
+        #     test_dataset,
+            
+        # )
 
         # model.reset()
 
@@ -132,20 +151,31 @@ def main():
         
         # Visualize a sample attention matrix from the test set
         # Only takes effect if you enabled visualizations above
-        av.show_atten_heatmap()
+        # av.show_atten_heatmap()
         pass
 
+    if sys.argv[1] == "TUNING":
+        l = np.arange(0.0001, 0.01 + 0.0001, 0.0005)
+        print("l: ", l)
+        ADAM_LR = hp.HParam('adam_lr', hp.Discrete(l.tolist()))
+
+    elif sys.argv[1] == "RUN":
+        ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001]))
+
+    # av.setup_visualization(enable=True)
     session_num = 0
 
-    for optimizer in HP_OPTIMIZER.domain.values:
+    # https://stackoverflow.com/questions/56559627/what-are-hp-discrete-and-hp-realinterval-can-i-include-more-values-in-hp-realin
+    for optimizer in ADAM_LR.domain.values:
         hparams = {
-            'optimizer': optimizer,
+            'adam_lr': optimizer,
         }
         run_name = "run-%d" % session_num
         print('--- Starting trial: %s' % run_name)
         print({h: hparams[h] for h in hparams})
         run(hparams, hparams_log_dir + run_name)
         session_num += 1
+
 
 
 
