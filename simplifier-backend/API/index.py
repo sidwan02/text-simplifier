@@ -8,13 +8,11 @@ def landing():
   return "Post to /evaluate-model"
 
 
-@app.route('/evaluate-model', methods=['POST'])
+@app.route('/evaluate-model', methods=['POST', 'GET'])
 def evaluate_model():
+  if request.method == 'POST':
     text = request.get_data()
     print(text)
-
-    
-
 
     result = subprocess.run(
         ['python', '../hw4/code/assignment.py', 'LOAD'],
@@ -28,4 +26,7 @@ def evaluate_model():
     print('\n')
     print(result.stderr)
 
-    return '', 204
+    return result.stdout, 204
+  else:
+    return "Send a POST request to this URL with a text string of the sentence(s) you want to simplify"
+    

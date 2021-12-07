@@ -67,7 +67,9 @@ def main():
     # You should turn this on once you feel your code is working.
     # Note that it is designed to work with transformers that have single attention heads.
     
-    data_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/data'
+    # if you don't do this stuff the ./ will be regarded as the directory of where the file was called from and not cur_dir of this file
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    data_root = os.path.dirname(os.path.dirname(cur_dir)) + '/data'
     print(data_root)
 
     print("Running preprocessing...")
@@ -135,7 +137,7 @@ def main():
         model((np.zeros((128, 14)), np.zeros((128, 14))))
 
 
-        model.save_weights(os.getcwd() + "\model.h5")
+        model.save_weights(cur_dir + "\model.h5")
 
     def evaluate_model_from_loaded_weights(hparams):
         model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
@@ -152,7 +154,7 @@ def main():
         # model.build(input_shape=(128, 1, 28, 28))
         model((np.zeros((128, 14)), np.zeros((128, 14))))
         
-        model.load_weights(os.getcwd() + "\model.h5")
+        model.load_weights(cur_dir + "\model.h5")
         
         model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
 
