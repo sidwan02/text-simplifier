@@ -30,3 +30,6 @@ def evaluate_model():
   else:
     return "Send a POST request to this URL with a text string of the sentence(s) you want to simplify"
     
+if __name__ == '__main__':
+    # Threaded option to enable multiple instances for multiple user access support
+    app.run(threaded=True, port=5000)
