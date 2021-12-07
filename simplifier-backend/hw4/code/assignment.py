@@ -8,8 +8,8 @@ import sys
 import random
 from tensorflow import keras
 
-from attenvis import AttentionVis
-av = AttentionVis()
+# from attenvis import AttentionVis
+# av = AttentionVis()
 
 import datetime
 
@@ -137,7 +137,7 @@ def main():
         model((np.zeros((128, 14)), np.zeros((128, 14))))
 
 
-        model.save_weights(cur_dir + "\model.h5")
+        model.save_weights(cur_dir + "/model.h5")
 
     def evaluate_model_from_loaded_weights(hparams):
         model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
@@ -154,7 +154,7 @@ def main():
         # model.build(input_shape=(128, 1, 28, 28))
         model((np.zeros((128, 14)), np.zeros((128, 14))))
         
-        model.load_weights(cur_dir + "\model.h5")
+        model.load_weights(cur_dir + "/model.h5")
         
         model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
 

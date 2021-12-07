@@ -2,17 +2,17 @@ import numpy as np
 import tensorflow as tf
 import numpy as np
 
-from attenvis import AttentionVis
+# from attenvis import AttentionVis
 import random
 
 import string
 
-av = AttentionVis()
+# av = AttentionVis()
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-@av.att_mat_func
+# @av.att_mat_func
 def Attention_Matrix(K, Q, use_mask=False):
     """
     STUDENT MUST WRITE:
@@ -205,8 +205,8 @@ class Transformer_Block(tf.keras.layers.Layer):
                 default=None, This is context from the encoder to be used as Keys and Values in self-attention function
         """
 
-        with av.trans_block(self.is_decoder):
-            atten_out = self.self_atten(inputs, inputs, inputs)
+        # with av.trans_block(self.is_decoder):
+        atten_out = self.self_atten(inputs, inputs, inputs)
         atten_out += inputs
         atten_normalized = self.layer_norm(atten_out)
 
