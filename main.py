@@ -121,10 +121,6 @@ def probs_to_words(probs):
 	:returns: words corresponding to the probabilities in a sentence
 
 	"""
-	# note: for each item in a window in probs, there will be a probability distribution across all vocab_size words => pick the highest probability word? 
-	# up to you whether the return type is a list of individual word strings or a string concatenation
-		# WE'RE GOING WITH CONCATENATION
-	sentence = []
 	probable_tokens = tf.argmax(probs, axis=1)
 	probable_words = tf.map_fn(lam(token): simple_vocab[token], probable_tokens)
 	probable_sentence = tf.join(probable_words, separator=' ')
