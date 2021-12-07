@@ -58,18 +58,23 @@ hp.hparams_config(
 
 
 def main():
-    if len(sys.argv) != 2 or sys.argv[1] not in {"SAVE", "TUNING", "LOAD"}:
+    if len(sys.argv) != 2 or sys.argv[1] not in {"SAVE", "TUNE", "LOAD"}:
         print("USAGE: python assignment.py <Model Type>")
-        print("<Model Type>: [RUN/TUNING]")
+        print("<Model Type>: [SAVE/TUNE/LOAD]")
         exit()
 
     # Change this to "True" to turn on the attention matrix visualization.
     # You should turn this on once you feel your code is working.
     # Note that it is designed to work with transformers that have single attention heads.
     
+    data_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + '/data'
+    print(data_root)
+
     print("Running preprocessing...")
+    # train_english, test_english, train_french, test_french, english_vocab, french_vocab, eng_padding_index = get_data(
+    #     '../../data/fls.txt', '../../data/els.txt', '../../data/flt.txt', '../../data/elt.txt')
     train_english, test_english, train_french, test_french, english_vocab, french_vocab, eng_padding_index = get_data(
-        '../../data/fls.txt', '../../data/els.txt', '../../data/flt.txt', '../../data/elt.txt')
+        data_root + '/fls.txt', data_root + '/els.txt', data_root + '/flt.txt', data_root + '/elt.txt')
     print("Preprocessing complete.")
 
     print("eng_padding_index ======================: ", eng_padding_index)
@@ -130,7 +135,7 @@ def main():
         model((np.zeros((128, 14)), np.zeros((128, 14))))
 
 
-        model.save_weights("model.h5")
+        model.save_weights(os.getcwd() + "\model.h5")
 
     def evaluate_model_from_loaded_weights(hparams):
         model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
@@ -147,7 +152,7 @@ def main():
         # model.build(input_shape=(128, 1, 28, 28))
         model((np.zeros((128, 14)), np.zeros((128, 14))))
         
-        model.load_weights("model.h5")
+        model.load_weights(os.getcwd() + "\model.h5")
         
         model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
 
@@ -155,6 +160,8 @@ def main():
         score = model.evaluate(test_dataset, verbose=0)
 
         print("score: ", score)
+
+        return score
 
     
     def run(hparams, logdir):
@@ -223,7 +230,7 @@ def main():
 
         evaluate_model_from_loaded_weights(hparams)
 
-    elif sys.argv[1] == "TUNING":
+    elif sys.argv[1] == "TUNE":
         l = np.arange(0.0001, 0.01 + 0.0001, 0.0005)
         print("l: ", l)
         ADAM_LR = hp.HParam('adam_lr', hp.Discrete(l.tolist()))

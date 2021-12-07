@@ -1,3 +1,7 @@
-import numpy as np
+import os
 
-print(np.arange(0.1, 0.6, 0.01))
+print(os.path.abspath(__file__))
+
+# print(os.getcwd())
+# print(os.path.dirname(os.getcwd()))
+# print(os.path.join(os.path.dirname(os.getcwd())), "\code")
