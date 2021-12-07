@@ -1,5 +1,5 @@
 Flask==2.0.2
 numpy==1.21.4
 tensorboard==2.7.0
-tensorflow==2.7.0
+tensorflow-cpu==2.7.0
 gunicorn==20.1.0
