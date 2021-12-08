@@ -122,10 +122,11 @@ def probs_to_words(probs):
 
 	"""
 	probable_tokens = tf.argmax(probs, axis=1)
-	probable_words = tf.map_fn(lam(token): simple_vocab[token], probable_tokens)
+	probable_words = tf.map_fn(lambda token: simple_vocab[token], probable_tokens)
 	probable_sentence = tf.join(probable_words, separator=' ')
-	
-	return tf.strings.as_string(probable_sentence)
+	probable_sentence = tf.strings.as_string(probable_sentence)
+
+	return re.sub('\s(?=[^A-Za-z0-9])', '', probable_sentence)
 
 def parse(text_input):
 	"""
@@ -135,7 +136,6 @@ def parse(text_input):
 	:returns: parsed text
 	"""
 	non_alpha_numeric = '[^A-Za-z0-9]'
-	# add spaces before punctuation
 	processed_text = []
 	sentences = re.split('(?<=\.\s)', text_input)
 	while '' in sentences:
@@ -157,11 +157,9 @@ def simplify(model, text_input, simplification_strength=1):
 	:simplification_strength: number of times text_input should be simplified/passed into the model (int)
 	:returns: the simplified text as a string
 	"""
-	# note: you can feed input into the model as usual with model.call()
 	if simplification_strength < 1:
 		return text_input
 	processed_text = convert_to_id(model.complex_vocab, parse(text_input))
- 	#TODO: the call function takes TWO inputs; what should we do about that?
 	probs = model.call(processed_text)
 	simplified = probs_to_words(text_input)
 	if simplification_strength == 1:
