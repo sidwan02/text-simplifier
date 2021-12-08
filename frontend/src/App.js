@@ -16,19 +16,19 @@ function App() {
 
       const config = {
         headers: {
-          'Content-Type': 'text/html; charset=utf-8',
-          'Access-Control-Allow-Origin': '*',
+          'Content-Type': 'text/plain',
+          // 'Access-Control-Allow-Origin': '*',
         },
       };
 
       axios
         .post(
-          'https://text-simplifier-api.herokuapp.com/evaluate-model/',
+          'https://text-simplifier-api.herokuapp.com/evaluate-model',
           toSend,
           config
         )
         .then((response) => {
-          console.log('response: ', response);
+          console.log('data: ', response.data);
         })
         .catch((error) => {
           console.log('error: ', error);

@@ -27,3 +27,4 @@ Resources:
 13. https://stackoverflow.com/questions/61062303/deploy-python-app-to-heroku-slug-size-too-large
 
 14. https://flask-cors.readthedocs.io/en/3.0.7/
+15. https://stackoverflow.com/questions/42168773/how-to-resolve-preflight-is-invalid-redirect-or-redirect-is-not-allowed-for/42172732#42172732
