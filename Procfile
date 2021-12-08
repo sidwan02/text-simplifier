@@ -1,1 +1,1 @@
-web: gunicorn --chdir ./simplifier-backend/API app:app
+web: gunicorn --chdir ./backend/API app:app
