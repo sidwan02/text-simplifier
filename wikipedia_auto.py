@@ -1,4 +1,5 @@
 import json
+import math
 f = json.load(open('wiki-auto-part-1-data.json'))
 articles = [v for k, v in f.items()]
 simple = []
@@ -32,8 +33,16 @@ for d in articles:
         simple.append(normal_text)
         normal.append(simple_text)
 
-with open('wiki_simple.txt', mode='wt', encoding='utf-8') as myfile:
-    myfile.write('\n'.join(simple))
+train_len = math.floor(len(simple)*0.8)
 
-with open('wiki_normal.txt', mode='wt', encoding='utf-8') as myfile:
-    myfile.write('\n'.join(normal))
+with open('wiki_simple_train.txt', mode='wt', encoding='utf-8') as myfile:
+    myfile.write('\n'.join(simple[:train_len]))
+
+with open('wiki_simple_test.txt', mode='wt', encoding='utf-8') as myfile:
+    myfile.write('\n'.join(simple[train_len:]))
+
+with open('wiki_normal_train.txt', mode='wt', encoding='utf-8') as myfile:
+    myfile.write('\n'.join(normal[:train_len]))
+
+with open('wiki_normal_test.txt', mode='wt', encoding='utf-8') as myfile:
+    myfile.write('\n'.join(normal[train_len:]))
