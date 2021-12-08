@@ -3,7 +3,7 @@ import numpy as np
 import tensorflow as tf
 import numpy as np
 from preprocess import *
-from simplifier_model import Transformer_Seq2Seq
+from simplifier_model import Simplifier_Transformer
 import sys
 import random
 import re
@@ -170,13 +170,17 @@ def simplify(model, text_input, simplification_strength=1):
 		return simplify(model, simplified, simplification_strength - 1)
 	
 def main():	
+	print("Running preprocessing...")
+	train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./','./','./','./')
+	print("Preprocessing complete.")
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
-	model = Transformer_Seq2Seq(*model_args) 
+	model = Simplifier_Transformer(*model_args) 
 	
 	# Train and Test Model for 1 epoch.
+	print("==================TRAINING=================")
 	train(model, train_complex, train_simple, simple_padding_index)
-	print("TESTING=================")
+	print("===================TESTING=================")
 	test(model, test_complex, test_simple, simple_padding_index)
 
 	pass

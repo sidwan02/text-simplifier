@@ -8,8 +8,8 @@ PAD_TOKEN = "*PAD*"
 STOP_TOKEN = "*STOP*"
 START_TOKEN = "*START*"
 UNK_TOKEN = "*UNK*"
-COMPLEX_WINDOW_SIZE = 25
-SIMPLE_WINDOW_SIZE = 25
+COMPLEX_WINDOW_SIZE = 150
+SIMPLE_WINDOW_SIZE = 150
 ##########DO NOT CHANGE#####################
 
 def pad_corpus(complex, simple):

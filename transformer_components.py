@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 import numpy as np
-
+import math
 
 def Attention_Matrix(K, Q, use_mask=False):
 	"""
