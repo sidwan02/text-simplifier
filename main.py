@@ -11,7 +11,9 @@ import re
 
 UNK_TOKEN = "*UNK*"
 print("Running preprocessing...")
-train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('../../data/fls.txt','../../data/els.txt','../../data/flt.txt','../../data/elt.txt')
+train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./wiki_normal_train.txt','./wiki_simple_train.txt','./wiki_normal_test.txt','./wiki_simple_test.txt')
+# train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./dummy_data/wiki_normal_train.txt','./dummy_data/wiki_simple_train.txt','./wiki_normal_test.txt','./wiki_simple_test.txt')
+# train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./dummy_data/fls.txt','./dummy_data/els.txt','./dummy_data/flt.txt','./dummy_data/elt.txt')
 print("Preprocessing complete.")
 
 def train(model, train_complex, train_simple, simple_padding_index):
@@ -48,8 +50,8 @@ def train(model, train_complex, train_simple, simple_padding_index):
 	num_batches = np.shape(train_complex)[0] // model.batch_size
 	print("num batches: ", num_batches)
 	optimizer = model.optimizer
-	for i in range(0, num_batches*model.batch_size, model.batch_size):
-	# for i in range(0, 50*model.batch_size, model.batch_size):
+	# for i in range(0, num_batches*model.batch_size, model.batch_size):
+	for i in range(0, 50*model.batch_size, model.batch_size):
 		# batch data
 		batch_encoder_input = train_complex[i:i+model.batch_size]
 		batch_decoder_input = decoder_input[i:i+model.batch_size]
@@ -58,7 +60,7 @@ def train(model, train_complex, train_simple, simple_padding_index):
 		# assert batch_mask.shape == np.shape(batch_decoder_labels)
 		# forward pass
 		with tf.GradientTape() as tape:
-			probs = model.call(batch_encoder_input, batch_decoder_input)
+			probs = model.call([batch_encoder_input, batch_decoder_input])
 			loss = model.loss_function(probs, batch_decoder_labels, batch_mask)
 		if i//model.batch_size % 5 == 0:
 			print("batch ", i//model.batch_size)
@@ -103,7 +105,7 @@ def test(model, test_complex, test_simple, simple_padding_index):
 		batch_num_non_padding_tokens = tf.reduce_sum(batch_mask)
 		num_non_padding_tokens += batch_num_non_padding_tokens
 		# accumulate losses and accs
-		probs = model.call(batch_encoder_input, batch_decoder_input)
+		probs = model.call([batch_encoder_input, batch_decoder_input])
 		losses += model.loss_function(probs, batch_decoder_labels, batch_mask) #loss func returns sum of losses in batch
 		acc += model.accuracy_function(probs, batch_decoder_labels, batch_mask) * batch_num_non_padding_tokens	
 
@@ -113,19 +115,22 @@ def test(model, test_complex, test_simple, simple_padding_index):
 	print("ACC: ", avg_acc)
 	return perplexity, avg_acc
 
-def probs_to_words(probs):
-	"""
-	helper function for converting decoder output (after being passed through softmax) to a sequence of words for use in simplify()
 
-	:param probs: The word probabilities as a tensor, [window_size x vocab_size]
-	:returns: words corresponding to the probabilities in a sentence
+#### NOTE: commented out because lambda function gives syntax error
 
-	"""
-	probable_tokens = tf.argmax(probs, axis=1)
-	probable_words = tf.map_fn(lam(token): simple_vocab[token], probable_tokens)
-	probable_sentence = tf.join(probable_words, separator=' ')
+# def probs_to_words(probs):
+# 	"""
+# 	helper function for converting decoder output (after being passed through softmax) to a sequence of words for use in simplify()
+
+# 	:param probs: The word probabilities as a tensor, [window_size x vocab_size]
+# 	:returns: words corresponding to the probabilities in a sentence
+
+# 	"""
+# 	probable_tokens = tf.argmax(probs, axis=1)
+# 	probable_words = tf.map_fn(lambda(token): simple_vocab[token], probable_tokens)
+# 	probable_sentence = tf.join(probable_words, separator=' ')
 	
-	return tf.strings.as_string(probable_sentence)
+# 	return tf.strings.as_string(probable_sentence)
 
 def parse(text_input):
 	"""
@@ -170,9 +175,7 @@ def simplify(model, text_input, simplification_strength=1):
 		return simplify(model, simplified, simplification_strength - 1)
 	
 def main():	
-	print("Running preprocessing...")
-	train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./','./','./','./')
-	print("Preprocessing complete.")
+	
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
 	model = Simplifier_Transformer(*model_args) 
@@ -182,6 +185,7 @@ def main():
 	train(model, train_complex, train_simple, simple_padding_index)
 	print("===================TESTING=================")
 	test(model, test_complex, test_simple, simple_padding_index)
+	print("===================TESTING COMPLETE=================")
 
 	pass
 

@@ -8,8 +8,8 @@ PAD_TOKEN = "*PAD*"
 STOP_TOKEN = "*STOP*"
 START_TOKEN = "*START*"
 UNK_TOKEN = "*UNK*"
-COMPLEX_WINDOW_SIZE = 150
-SIMPLE_WINDOW_SIZE = 150
+COMPLEX_WINDOW_SIZE = 420
+SIMPLE_WINDOW_SIZE = 220
 ##########DO NOT CHANGE#####################
 
 def pad_corpus(complex, simple):
@@ -34,6 +34,8 @@ def pad_corpus(complex, simple):
 		padded_SIMPLE = [START_TOKEN] + padded_SIMPLE + [STOP_TOKEN] + [PAD_TOKEN] * (SIMPLE_WINDOW_SIZE - len(padded_SIMPLE)-1)
 		SIMPLE_padded_sentences.append(padded_SIMPLE)
 
+	print("complex shape:", np.shape(COMPLEX_padded_sentences))
+	print("simple shape:", np.shape(SIMPLE_padded_sentences))
 	return COMPLEX_padded_sentences, SIMPLE_padded_sentences
 
 def build_vocab(sentences):
@@ -59,6 +61,9 @@ def convert_to_id(vocab, sentences):
 	:param sentences:  list of lists of words, each representing padded sentence
 	:return: numpy array of integers, with each row representing the word indeces in the corresponding sentences
   """
+
+	# for sentence in sentences:
+		# print(np.shape(sentence))
 	return np.stack([[vocab[word] if word in vocab else vocab[UNK_TOKEN] for word in sentence] for sentence in sentences])
 
 
@@ -101,14 +106,17 @@ def get_data(complex_training_file, simple_training_file, complex_test_file, sim
 	simple_train = read_data(simple_training_file)
 	simple_test = read_data(simple_test_file)
 	#2) Pad training data (see pad_corpus)
+	print("padding")
 	padded_complex_train, padded_simple_train = pad_corpus(complex_train, simple_train)
 	#3) Pad testing data (see pad_corpus)
 	padded_complex_test, padded_simple_test = pad_corpus(complex_test, simple_test)
 	#4) Build vocab for complex (see build_vocab)
+	print("building vocab")
 	complex_vocab, complex_pad_idx = build_vocab(padded_complex_train)
 	#5) Build vocab for simple (see build_vocab)
 	simple_vocab, simple_pad_idx = build_vocab(padded_simple_train)
 	#6) Convert training and testing simple sentences to list of IDS (see convert_to_id)
+	print("converting to ids")
 	simple_train_ids = convert_to_id(simple_vocab, padded_simple_train)
 	simple_test_ids = convert_to_id(simple_vocab, padded_simple_test)
 	#7) Convert training and testing complex sentences to list of IDS (see convert_to_id)

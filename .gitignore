@@ -6,3 +6,6 @@ wiki_normal_train.txt
 wiki_simple_train.txt
 wiki_normal_test.txt
 wiki_simple_test.txt
+__pycache__/preprocess.cpython-37.pyc
+__pycache__/transformer_components.cpython-37.pyc
+__pycache__/simplifier_model.cpython-37.pyc
