@@ -5,6 +5,8 @@ import { useFormik } from 'formik';
 import axios from 'axios';
 
 function App() {
+  [resultText, setresultText] = useState('Type some input in the other box!');
+
   const formik = useFormik({
     initialValues: {
       inputText: '',
@@ -49,23 +51,32 @@ function App() {
             onChange={formik.handleChange}
             value={formik.values.inputText}
           />
-          {/* <button type="submit">Submit</button> */}
           <div className="btnDiv">
             <AwesomeButton type="primary">Get Simplified Text</AwesomeButton>{' '}
-            <AwesomeButton
-              // className="tb-button"
-              type="primary"
-              href="https://tinyurl.com/tb-adam-hyperparam-seq2seq/"
-              target="_blank"
-            >
-              Launch Tensorboard
-            </AwesomeButton>
           </div>
         </form>
+
         <div className="resultDiv">
-          <div>Output Text</div>
-          <div className="simplified-text-div"></div>
+          <label htmlFor="outputText">Output Text</label>
+          <textarea
+            id="outputText"
+            name="outputText"
+            // type="textArea"
+            // onChange={}
+            disabled="true"
+            value={'hi'}
+          />
         </div>
+      </div>
+      <div className="general-buttons-div">
+        <AwesomeButton
+          // className="tb-button"
+          type="primary"
+          href="https://tinyurl.com/tb-adam-hyperparam-seq2seq/"
+          target="_blank"
+        >
+          Launch Tensorboard
+        </AwesomeButton>
       </div>
     </div>
   );
