@@ -164,8 +164,6 @@ class Transformer_Block(tf.keras.layers.Layer):
 		        5) feed forward layer
 		        6) residual layer and layer normalization
 
-		If the multi_headed==True, the model uses multiheaded attention (Only 2470 students must implement this)
-
 		:param inputs: tensor of [BATCH_SIZE x (ENG/FRN)_WINDOW_SIZE x EMBEDDING_SIZE ]
 		:context: tensor of [BATCH_SIZE x FRENCH_WINDOW_SIZE x EMBEDDING_SIZE ] or None
 			default=None, This is context from the encoder to be used as Keys and Values in self-attention function
@@ -188,21 +186,17 @@ class Transformer_Block(tf.keras.layers.Layer):
 		return tf.nn.relu(ff_norm)
 
 
+class Position_Encoding_Layer(tf.keras.layers.Layer):
+	def __init__(self, window_sz, emb_sz):
+		super(Position_Encoding_Layer, self).__init__()
+		self.positional_embeddings = self.add_weight("pos_embed",shape=[window_sz, emb_sz])
 
+	@tf.function
+	def call(self, x):
+		"""
+		Adds positional embeddings to word embeddings.    
 
-# === No need for positional encoding? ===
-
-# class Position_Encoding_Layer(tf.keras.layers.Layer):
-	# def __init__(self, window_sz, emb_sz):
-	# 	super(Position_Encoding_Layer, self).__init__()
-	# 	self.positional_embeddings = self.add_weight("pos_embed",shape=[window_sz, emb_sz])
-
-	# @tf.function
-	# def call(self, x):
-	# 	"""
-	# 	Adds positional embeddings to word embeddings.    
-
-	# 	:param x: [BATCH_SIZE x (ENG/FRN)_WINDOW_SIZE x EMBEDDING_SIZE ] the input embeddings fed to the encoder
-	# 	:return: [BATCH_SIZE x (ENG/FRN)_WINDOW_SIZE x EMBEDDING_SIZE ] new word embeddings with added positional encodings
-	# 	"""
-	# 	return x+self.positional_embeddings
+		:param x: [BATCH_SIZE x (ENG/FRN)_WINDOW_SIZE x EMBEDDING_SIZE ] the input embeddings fed to the encoder
+		:return: [BATCH_SIZE x (ENG/FRN)_WINDOW_SIZE x EMBEDDING_SIZE ] new word embeddings with added positional encodings
+		"""
+		return x+self.positional_embeddings
