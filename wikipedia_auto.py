@@ -12,6 +12,8 @@ for d in articles:
         simple_par = []
         normal_par = []
         
+        punctuation = [(",", " ,"), (".", " ."), ("'", "' "), (":", " :"), (";", " ;"), ("(", "( "), (")", " )")]
+
         for s in d["simple"]["content"].keys():
             if s.startswith(p[0]):
                 simple_par.append(d["simple"]["content"][s])
@@ -20,8 +22,15 @@ for d in articles:
             if s.startswith(p[1]):
                 normal_par.append(d["normal"]["content"][s])
         
-        simple.append(" ".join(simple_par))
-        normal.append(" ".join(normal_par))
+        normal_text = " ".join(simple_par)
+        simple_text = " ".join(normal_par)
+        for x in punctuation:
+            normal_text = normal_text.replace(x[0], x[1])
+        for x in punctuation:
+            simple_text = simple_text.replace(x[0], x[1])
+
+        simple.append(normal_text)
+        normal.append(simple_text)
 
 with open('wiki_simple.txt', mode='wt', encoding='utf-8') as myfile:
     myfile.write('\n'.join(simple))
