@@ -28,3 +28,6 @@ Resources:
 
 14. https://flask-cors.readthedocs.io/en/3.0.7/
 15. https://stackoverflow.com/questions/42168773/how-to-resolve-preflight-is-invalid-redirect-or-redirect-is-not-allowed-for/42172732#42172732
+
+16. https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-multi-procfile
+17. https://github.com/mars/create-react-app-buildpack#user-content-generate-a-react-app

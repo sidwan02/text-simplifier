@@ -1,1 +1,1 @@
-web: gunicorn --chdir ./backend/API app:app
+web: bin/boot
