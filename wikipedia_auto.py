@@ -5,6 +5,9 @@ articles = [v for k, v in f.items()]
 simple = []
 normal = []
 
+longest_simple = 0
+longest_normal = 0
+
 for d in articles:
     alignments = d["paragraph_alignment"]
     if len(alignments) == 0:
@@ -30,10 +33,15 @@ for d in articles:
         for x in punctuation:
             simple_text = simple_text.replace(x[0], x[1])
 
+        longest_simple = max(longest_simple, len(simple_text.split()))
+        longest_normal = max(longest_normal, len(normal_text.split()))
+
         simple.append(normal_text)
         normal.append(simple_text)
 
 train_len = math.floor(len(simple)*0.8)
+print("Longest simple line: " + str(longest_simple))
+print("Longest normal line: " + str(longest_normal))
 
 with open('wiki_simple_train.txt', mode='wt', encoding='utf-8') as myfile:
     myfile.write('\n'.join(simple[:train_len]))
