@@ -25,3 +25,5 @@ Resources:
 11. https://stackabuse.com/deploying-a-flask-application-to-heroku/
 12. https://stackoverflow.com/questions/26595874/heroku-src-refspec-master-does-not-match-any
 13. https://stackoverflow.com/questions/61062303/deploy-python-app-to-heroku-slug-size-too-large
+
+14. https://flask-cors.readthedocs.io/en/3.0.7/

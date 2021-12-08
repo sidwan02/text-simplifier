@@ -2,6 +2,7 @@ import './App.css';
 import { AwesomeButton } from 'react-awesome-button';
 import 'react-awesome-button/dist/styles.css';
 import { useFormik } from 'formik';
+import axios from 'axios';
 
 function App() {
   const formik = useFormik({
@@ -9,7 +10,29 @@ function App() {
       inputText: '',
     },
     onSubmit: (values) => {
-      console.log(values);
+      console.log('values: ', values);
+
+      const toSend = values.inputText;
+
+      const config = {
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Access-Control-Allow-Origin': '*',
+        },
+      };
+
+      axios
+        .post(
+          'https://text-simplifier-api.herokuapp.com/evaluate-model/',
+          toSend,
+          config
+        )
+        .then((response) => {
+          console.log('response: ', response);
+        })
+        .catch((error) => {
+          console.log('error: ', error);
+        });
     },
   });
 
