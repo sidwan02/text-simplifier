@@ -113,22 +113,16 @@ def test(model, test_complex, test_simple, simple_padding_index):
 	print("ACC: ", avg_acc)
 	return perplexity, avg_acc
 
-
 def probs_to_words(probs):
 	"""
 	helper function for converting decoder output (after being passed through softmax) to a sequence of words for use in simplify()
 
 	:param probs: The word probabilities as a tensor, [window_size x vocab_size]
-	:returns: words corresponding to the probabilities, [window_size x vocab_size]
+	:returns: words corresponding to the probabilities in a sentence
 
 	"""
-	# note: for each item in a window in probs, there will be a probability distribution across all vocab_size words => pick the highest probability word? 
-	# up to you whether the return type is a list of individual word strings or a string concatenation
-		# WE'RE GOING WITH CONCATENATION
-	sentence = []
 	probable_tokens = tf.argmax(probs, axis=1)
-	#TODO: name of dictionary
-	probable_words = tf.map_fn(lam(token): dictionary[token], probable_tokens)
+	probable_words = tf.map_fn(lam(token): simple_vocab[token], probable_tokens)
 	probable_sentence = tf.join(probable_words, separator=' ')
 	
 	return tf.strings.as_string(probable_sentence)
@@ -143,28 +137,15 @@ def parse(text_input):
 	non_alpha_numeric = '[^A-Za-z0-9]'
 	# add spaces before punctuation
 	processed_text = []
-	sentences = text_input.split(".")
+	sentences = re.split('(?<=\.\s)', text_input)
 	while '' in sentences:
 		sentences.remove('')
   
-	for s in sentences:
-		processed_sentence = []
-		sans_puntuation = re.split(non_alpha_numeric, s)
-		punctuation = re.findall(non_alpha_numeric, s)
-		i = 0
-		while True:
-			try:
-				processed_sentence.append(sans_puntuation[i])
-				processed_sentence.append(punctuation[i])
-				i += 1
-			except:
-				while ' ' in processed_sentence:
-					processed_sentence.remove(' ')
-				while '' in processed_sentence:
-					processed_sentence.remove('')
-				processed_sentence.append('.')
-				break
-		processed_text.append(processed_sentence)
+	for sentence in sentences:
+		split_sentence = re.split(r'\s|(?=[^A-Za-z0-9])|(?<=[\'|"|-|–|—])(?=[A-Za-z0-9])', sentence)
+		while '' in split_sentence:
+			split_sentence.remove('')
+		processed_text(split_sentence)
 	return processed_text
 		
 def simplify(model, text_input, simplification_strength=1):
@@ -177,10 +158,10 @@ def simplify(model, text_input, simplification_strength=1):
 	:returns: the simplified text as a string
 	"""
 	# note: you can feed input into the model as usual with model.call()
- #TODO: the call function takes TWO inputs; what should we do about that?
 	if simplification_strength < 1:
 		return text_input
 	processed_text = convert_to_id(model.complex_vocab, parse(text_input))
+ 	#TODO: the call function takes TWO inputs; what should we do about that?
 	probs = model.call(processed_text)
 	simplified = probs_to_words(text_input)
 	if simplification_strength == 1:

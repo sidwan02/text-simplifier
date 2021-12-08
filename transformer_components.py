@@ -85,9 +85,27 @@ def Attention_Matrix(K, Q, use_mask=False):
 class Multi_Headed(tf.keras.layers.Layer):
 	def __init__(self, emb_sz, use_mask):
 		super(Multi_Headed, self).__init__()
-		
-		# TODO:
-		# Initialize heads
+		sizes = []
+		if emb_sz % 3 == 0:
+			sizes = [emb_sz//3, emb_sz//3, emb_sz//3]
+		elif emb_sz % 3 == 1:
+			sizes = [math.floor(emb_sz/3), math.floor(emb_sz/3), math.ceil(emb_sz/3)]
+		else:
+			sizes = [math.floor(emb_sz/3), math.ceil(emb_sz/3), math.ceil(emb_sz/3)]
+
+		self.use_mask = use_mask
+
+		self.key_weight1 = self.add_weight(shape=(emb_sz, sizes[0]))
+		self.value_weight1 = self.add_weight(shape=(emb_sz, sizes[0]))
+		self.query_weight1 = self.add_weight(shape=(emb_sz, sizes[0]))
+
+		self.key_weight2 = self.add_weight(shape=(emb_sz, sizes[1]))
+		self.value_weight2 = self.add_weight(shape=(emb_sz, sizes[1]))
+		self.query_weight2 = self.add_weight(shape=(emb_sz, sizes[1]))
+
+		self.key_weight3 = self.add_weight(shape=(emb_sz, sizes[2]))
+		self.value_weight3 = self.add_weight(shape=(emb_sz, sizes[2]))
+		self.query_weight3 = self.add_weight(shape=(emb_sz, sizes[2]))
 
 	@tf.function
 	def call(self, inputs_for_keys, inputs_for_values, inputs_for_queries):
@@ -105,8 +123,28 @@ class Multi_Headed(tf.keras.layers.Layer):
 		:param inputs_for_queries: tensor of [batch_size x [ENG/FRN]_WINDOW_SIZE x input_size ]
 		:return: tensor of [BATCH_SIZE x (ENG/FRN)_WINDOW_SIZE x output_size ]
 		"""
+		K1 = tf.tensordot(inputs_for_keys, self.key_weight1, [[2], [0]])
+		V1 = tf.tensordot(inputs_for_values, self.value_weight1, [[2], [0]])
+		Q1 = tf.tensordot(inputs_for_queries, self.query_weight1, [[2], [0]])
 
-		return None
+		K2 = tf.tensordot(inputs_for_keys, self.key_weight2, [[2], [0]])
+		V2 = tf.tensordot(inputs_for_values, self.value_weight2, [[2], [0]])
+		Q2 = tf.tensordot(inputs_for_queries, self.query_weight2, [[2], [0]])
+
+		K3 = tf.tensordot(inputs_for_keys, self.key_weight3, [[2], [0]])
+		V3 = tf.tensordot(inputs_for_values, self.value_weight3, [[2], [0]])
+		Q3 = tf.tensordot(inputs_for_queries, self.query_weight3, [[2], [0]])
+
+		attention_mat1 = Attention_Matrix(K1, Q1, self.use_mask)
+		attention_mat2 = Attention_Matrix(K2, Q2, self.use_mask)
+		attention_mat3 = Attention_Matrix(K3, Q3, self.use_mask)
+
+		res1 = tf.matmul(attention_mat1, V1)
+		res2 = tf.matmul(attention_mat2, V2)
+		res3 = tf.matmul(attention_mat3, V3)
+
+		return tf.concat([res1, res2, res3], 2)
+
 
 
 class Feed_Forwards(tf.keras.layers.Layer):
