@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  /* text-align: center; */
 }
 
 .App-logo {
@@ -28,11 +28,62 @@
   color: #61dafb;
 }
 
+.whole-div {
+  display: flex;
+  flex-direction: row;
+  /* width: 100vw;
+  height: 100vh; */
+}
+
 form {
-  position: absolute;
+  /* position: absolute; */
   margin: 10px;
   /* padding: 10px; */
   display: flex;
   flex-direction: column;
+  width: 30vw;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+}
+
+label {
+  margin-bottom: 5px;
+}
+
+textarea {
+  margin-bottom: 5px;
+  height: 40vh;
+  max-height: 70vh;
+  width: 40vw;
+  max-width: 60vw;
+  overflow-y: auto;
+}
+
+.btnDiv {
+  display: inline-block;
+}
+
+.resultDiv {
+  /* position: absolute;
+  top: 0;
+  right: 0; */
+  left: 0;
+  margin: 10px;
+  /* padding: 10px; */
+  display: flex;
+  flex-direction: column;
+}
+
+.simplified-text-div {
   width: 30%;
+  margin: 5px;
+  height: 40vh;
+  max-height: 70vh;
+  width: 40vw;
+  max-width: 60vw;
+  overflow-y: auto;
+  background-color: #282c34;
 }
