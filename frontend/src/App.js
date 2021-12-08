@@ -3,9 +3,12 @@ import { AwesomeButton } from 'react-awesome-button';
 import 'react-awesome-button/dist/styles.css';
 import { useFormik } from 'formik';
 import axios from 'axios';
+import React, { useState } from 'react';
 
 function App() {
-  [resultText, setresultText] = useState('Type some input in the other box!');
+  const [resultText, setresultText] = useState(
+    'Type something in the other box and submit!'
+  );
 
   const formik = useFormik({
     initialValues: {
@@ -13,6 +16,8 @@ function App() {
     },
     onSubmit: (values) => {
       console.log('values: ', values);
+
+      setresultText('Generating simplified text ...');
 
       const toSend = values.inputText;
 
@@ -32,6 +37,7 @@ function App() {
         )
         .then((response) => {
           console.log('data: ', response.data);
+          setresultText(response.data.stdout);
         })
         .catch((error) => {
           console.log('error: ', error);
@@ -64,7 +70,7 @@ function App() {
             // type="textArea"
             // onChange={}
             disabled="true"
-            value={'hi'}
+            value={resultText}
           />
         </div>
       </div>
