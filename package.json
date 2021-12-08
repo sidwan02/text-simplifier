@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "heroku-prebuild": "cd frontend/ && yarn start"
+    "heroku-prebuild": "cd frontend/ && npm install && npm run build"
   }
 }
