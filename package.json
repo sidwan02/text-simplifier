@@ -1,7 +1,7 @@
 {
   "name": "text-simplifier",
   "version": "1.0.0",
-  "description": "",
+  "homepage": "./frontend",
   "scripts": {
     "heroku-prebuild": "cd frontend/ && npm install && npm run build"
   }
