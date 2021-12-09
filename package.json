@@ -4,6 +4,6 @@
   "homepage": "/frontend",
   "scripts": {
     "start": "cd frontend/ && yarn start",
-    "heroku-prebuild": "cd frontend/ && npm install && npm run build"
+    "heroku-prebuild": "cd frontend/ && npm install && npm run build && yarn install"
   }
 }
