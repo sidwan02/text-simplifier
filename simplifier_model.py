@@ -22,7 +22,7 @@ class Simplifier_Transformer(tf.keras.Model):
         # 2) Define embeddings, encoder, decoder, and feed forward layers
 
         # Define batch size and optimizer/learning rate
-		self.batch_size = 128
+		self.batch_size = 64
 		self.embedding_size = 40
         # self.optimizer = tf.keras.optimizers.Adam(0.001)
 		self.optimizer = tf.keras.optimizers.Adam(0.001)
@@ -62,7 +62,6 @@ class Simplifier_Transformer(tf.keras.Model):
 
 		encoder_input, decoder_input = inputs
 
-        # TODO:
         # 1) Add the positional embeddings to lexile_high sentence embeddings
 		embedding_lexile_high = self.E_lexile_high(encoder_input)
 

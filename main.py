@@ -14,6 +14,9 @@ print("Running preprocessing...")
 train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./wiki_normal_train.txt','./wiki_simple_train.txt','./wiki_normal_test.txt','./wiki_simple_test.txt')
 # train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./dummy_data/wiki_normal_train.txt','./dummy_data/wiki_simple_train.txt','./wiki_normal_test.txt','./wiki_simple_test.txt')
 # train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./dummy_data/fls.txt','./dummy_data/els.txt','./dummy_data/flt.txt','./dummy_data/elt.txt')
+vocab_word_list = simple_vocab.keys()
+vocab_idx_list = simple_vocab.values()
+stop_id = simple_vocab["*START*"]
 print("Preprocessing complete.")
 
 def train(model, train_complex, train_simple, simple_padding_index):
@@ -115,6 +118,31 @@ def test(model, test_complex, test_simple, simple_padding_index):
 	print("ACC: ", avg_acc)
 	return perplexity, avg_acc
 
+def call_inference(model, input_ids):
+	"""
+	Used for inference without ground truth labels. Works by calling call() recursively,
+	using the decoder output of the previous iteration each time (starting with the <START> token)
+	as the new decoder input
+	:param input_ids: 1D tensor of word ids of the input text string, [sentence_length,]
+	:return: full string corresponding the the input_ids
+	"""
+	encoder_input = tf.reshape(input_ids, [1, tf.size(input_ids)]) #reshape to [1, sent_len]
+	accumulated_output = [START_TOKEN] # first word to be generated is after start token
+	
+	for i in range(SIMPLE_WINDOW_SIZE):
+		probs = tf.squeeze(model.call([encoder_input, tf.convert_to_tensor(accumulated_output)])) #[(sub)_sentence_len x simple_vocab_size]
+		# add newly predicted word to acc_output
+		new_id = tf.argmax(probs[i]) #TODO get argmax for curr word only
+		if new_id == stop_id or len(accumulated_output == SIMPLE_WINDOW_SIZE-1):
+			return " ".join(accumulated_output)
+
+		position = vocab_idx_list.index(new_id)
+		print("new predicted word: ", vocab_word_list[position])
+		accumulated_output.append(vocab_word_list[position])
+
+		
+
+
 
 #### NOTE: commented out because lambda function gives syntax error
 
@@ -165,8 +193,8 @@ def simplify(model, text_input, simplification_strength=1):
 	if simplification_strength < 1:
 		return text_input
 	processed_text = convert_to_id(model.complex_vocab, parse(text_input))
-	probs = model.call(processed_text)
-	simplified = probs_to_words(text_input)
+	# probs = model.call(processed_text)
+	simplified = call_inference(processed_text)
 	if simplification_strength == 1:
 		return simplified
 	else:
@@ -182,6 +210,8 @@ def main():
 	print("==================TRAINING=================")
 	train(model, train_complex, train_simple, simple_padding_index)
 	print("===================TESTING=================")
+	call_inference(np.array("A stroke is a medical condition in which poor blood flow to the brain results in cell death . There are two main types of stroke : ischemic , due to lack of blood flow , and hemorrhagic , due to bleeding . Both result in parts of the brain not functioning properly . Signs and symptoms of a stroke may include an inability to move or feel on one side of the body , problems understanding or speaking , dizziness , or loss of vision to one side . Signs and symptoms often appear soon after the stroke has occurred . If symptoms last less than one or two hours it is known as a transient ischemic attack ( TIA ) or mini-stroke . A hemorrhagic stroke may also be associated with a severe headache . The symptoms of a stroke can be permanent .".split()))
+	call_inference(np.array("According to Indian law , no formality is needed during the procedure of arrest . The arrest can be made by a citizen , a police officer or a Magistrate . The police officer needs to inform the person being arrested the full particulars of the person' s offence and that they are entitled to be released on bail if the offence fits the criteria for being bailable .".split()))
 	test(model, test_complex, test_simple, simple_padding_index)
 	print("===================TESTING COMPLETE=================")
 
