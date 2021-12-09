@@ -20,7 +20,7 @@ simple_cutoff = 200
 
 # Define unking character and vocab size
 unk = "*UNK*"
-non_unk_vocab_size = 10000
+non_unk_vocab_size = 5000
 
 class UnkReplacer:
     """

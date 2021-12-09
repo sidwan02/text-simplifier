@@ -8,11 +8,16 @@ import sys
 import random
 import re
 
+"""
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+"""
 
+"""
 physical_devices = tf.config.list_physical_devices('GPU') 
 for device in physical_devices:
     tf.config.experimental.set_memory_growth(device, True)
-
+"""
 
 UNK_TOKEN = "*UNK*"
 print("Running preprocessing...")
@@ -55,8 +60,8 @@ def train(model, train_complex, train_simple, simple_padding_index):
 	num_batches = np.shape(train_complex)[0] // model.batch_size
 	print("num batches: ", num_batches)
 	optimizer = model.optimizer
-	# for i in range(0, num_batches*model.batch_size, model.batch_size):
-	for i in range(0, 50*model.batch_size, model.batch_size):
+	for i in range(0, num_batches*model.batch_size, model.batch_size):
+	# for i in range(0, 50*model.batch_size, model.batch_size):
 		# batch data
 		batch_encoder_input = train_complex[i:i+model.batch_size]
 		batch_decoder_input = decoder_input[i:i+model.batch_size]
@@ -185,7 +190,8 @@ def main():
 	
 	# Train and Test Model for 1 epoch.
 	print("==================TRAINING=================")
-	train(model, train_complex, train_simple, simple_padding_index)
+	for i in range(25):
+		train(model, train_complex, train_simple, simple_padding_index)
 	print("===================TESTING=================")
 	test(model, test_complex, test_simple, simple_padding_index)
 	print("===================TESTING COMPLETE=================")

@@ -20,8 +20,8 @@ class Simplifier_Transformer(tf.keras.Model):
         print(lexile_high_vocab_size, lexile_low_vocab_size)
 
         # Define batch size and optimizer/learning rate
-        self.batch_size = 128
-        self.embedding_size = 40
+        self.batch_size = 64
+        self.embedding_size = 50
         # self.optimizer = tf.keras.optimizers.Adam(0.001)
         self.optimizer = tf.keras.optimizers.Adam(0.001)
 
