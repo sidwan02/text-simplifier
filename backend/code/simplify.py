@@ -116,5 +116,5 @@ def main(text_input, simplification_strength=1):
 			return simplify(model, simplified, simplification_strength - 1)
 
 	model = get_model()
-	simplify(model, text_input)
+	return simplify(model, text_input)
 

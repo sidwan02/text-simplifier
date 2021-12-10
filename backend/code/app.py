@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from subprocess import Popen, PIPE, STDOUT
 from flask_cors import CORS
-
+from simplify import main
 
 app = Flask(__name__)
 CORS(app)
@@ -52,40 +52,15 @@ def evaluate_model():
     return "Send a POST request to this URL with a text string of the sentence(s) you want to simplify"
 
 @app.route('/simplify', methods=['POST', 'GET'])
-def evaluate_model():
+def simplify():
   if request.method == 'POST':
     text = request.get_data()
     print(text)
     
-    p = Popen('python ../code/main.py LOAD', stdout = PIPE, 
-        stderr = PIPE, shell = True)
-    # p = Popen('python ../code/help.py', stdout = PIPE, 
-    #       stderr = PIPE, shell = True)
+    simplified_text = main(text)
     
-    stdout = ""
-    stderr = ""
-    
-    while True:
-      line_out = p.stdout.readline()
-      line_err = p.stderr.readline()
-      if (not line_out and not line_err): break
-      elif not line_out:
-        # print(line_err)
-        stderr += line_err.decode("utf-8")
-      elif not line_err:
-        # print(line_out)
-        stdout += line_out.decode("utf-8")
-      else:
-        # print(line_out)
-        # print(line_err)
-        stdout += line_out.decode("utf-8")
-        stderr += line_err.decode("utf-8")
-
-    # print(stdout)
-    # print(stderr)
     return jsonify({
-            "stdout": stdout,
-            "stderr" : stderr,
+            "text": simplified_text,
             "METHOD" : "POST"
         })
   else:
