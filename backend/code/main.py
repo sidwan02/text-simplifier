@@ -112,6 +112,8 @@ def main():
 	test_dataset = tf.data.Dataset.from_tensor_slices((test_complex, test_simple_trunc, labels))
 	test_dataset = test_dataset.batch(64)
 
+	tf.data.experimental.save(train_dataset, cur_dir + "/train_dataset")
+	tf.data.experimental.save(test_dataset, cur_dir + "/test_dataset")
 
 	def save_trained_weights(hparams):
 		model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)

@@ -55,10 +55,8 @@ def landing():
 @app.route('/evaluate', methods=['GET'])
 def evaluate_model():
   if request.method == 'GET':
-    text = request.get_data()
-    print(text)
     
-    score = evaluate_main(text)
+    score = evaluate_main()
 
     # print(stdout)
     # print(stderr)
@@ -69,7 +67,7 @@ def evaluate_model():
 @app.route('/simplify', methods=['POST', 'GET'])
 def simplify():
   if request.method == 'POST':
-    text = request.get_data()
+    text = request.get_data().decode("utf-8")
     print(text)
     
     simplified_text = simplify_main(text)
