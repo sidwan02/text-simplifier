@@ -162,24 +162,16 @@ def call_inference(model, input_ids):
 	# return re.sub('\s(?=[^A-Za-z0-9])', '', probable_sentence)
 
 def parse(text_input):
-	"""
- 	Transforms a string into a list of sentences, which are lists of words.
+    """
+     Transforms a string into a list of words.
   
-	:text_input: the text to be parsed
-	:returns: parsed text
-	"""
-	non_alpha_numeric = '[^A-Za-z0-9]'
-	processed_text = []
-	sentences = re.split('(?<=\.\s)', text_input)
-	while '' in sentences:
-		sentences.remove('')
-  
-	for sentence in sentences:
-		split_sentence = re.split(r'\s|(?=[^A-Za-z0-9])|(?<=[\'|"|-|–|—])(?=[A-Za-z0-9])', sentence)
-		while '' in split_sentence:
-			split_sentence.remove('')
-		processed_text(split_sentence)
-	return processed_text
+    :text_input: the text to be parsed
+    :returns: parsed text as a list of words/punctuation marks
+    """
+    words = re.split(r'\s|(?=[^A-Za-z0-9])|(?<=[\'|"|-|–|—])(?=[A-Za-z0-9])', text_input)
+    while '' in words:
+        words.remove('')
+    return words
 		
 def simplify(model, text_input, simplification_strength=1):
 	"""
@@ -192,17 +184,13 @@ def simplify(model, text_input, simplification_strength=1):
 	"""
 	if simplification_strength < 1:
 		return text_input
-	processed_text = convert_to_id(model.complex_vocab, parse(text_input))
-	# probs = model.call(processed_text)
-	simplified = call_inference(processed_text)
-	if simplification_strength == 1:
-		return simplified
 	else:
+		processed_text = convert_to_id(complex_vocab, parse(text_input))
+		simplified = call_inference(processed_text)
 		return simplify(model, simplified, simplification_strength - 1)
 	
 def main():	
 	
-
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
 	model = Simplifier_Transformer(*model_args) 
 	
