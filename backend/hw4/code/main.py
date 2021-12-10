@@ -289,14 +289,14 @@ def main():
         # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
 
         # model.build(input_shape=(128, 1, 28, 28))
-        model((np.zeros((128, 14)), np.zeros((128, 14))))
+		model((np.zeros((128, 14)), np.zeros((128, 14))))
         
-        model.load_weights(cur_dir + "/model.h5")
+		model.load_weights(cur_dir + "/model.h5")
         
-        model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
+		model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
 
 
-        score = model.evaluate(test_dataset, verbose=0)
+		score = model.evaluate(test_dataset, verbose=0)
 
         print("score: ", score)
 
@@ -312,7 +312,7 @@ def main():
         # elif sys.argv[1] == "TRANSFORMER":
         # model = Transformer_Seq2Seq(*model_args)
         model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
-		model = Simplifier_Transformer(*model_args)
+        model = Simplifier_Transformer(*model_args)
 
         # model.compile(optimizer=model.optimizer, run_eagerly=True)
         # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
@@ -333,34 +333,45 @@ def main():
             validation_data=test_dataset
             )
 
+	if sys.argv[1] == "SAVE":
+        ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001]))
+        hparams = {
+            'adam_lr': ADAM_LR.domain.values[0],
+        }
 
-            # model.save('my_model', save_format="tf")
+        save_trained_weights(hparams)
 
-        # model.evaluate(
-        #     test_dataset,
-            
-        # )
+    elif sys.argv[1] == "LOAD":
+        ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001]))
 
-        # model.reset()
+        hparams = {
+            'adam_lr': ADAM_LR.domain.values[0],
+        }
 
+        evaluate_model_from_loaded_weights(hparams)
 
-        # model.evaluate(test_dataset, callbacks=[tensorboard_callback])
-
+    elif sys.argv[1] == "TUNE":
+        l = np.arange(0.0001, 0.01 + 0.0001, 0.0005)
+        print("l: ", l)
+        ADAM_LR = hp.HParam('adam_lr', hp.Discrete(l.tolist()))
+        hparams = {
+            'adam_lr': ADAM_LR.domain.values[0],
+        }
         
-        # Visualize a sample attention matrix from the test set
-        # Only takes effect if you enabled visualizations above
-        # av.show_atten_heatmap()
-        
+        # av.setup_visualization(enable=True)
+        session_num = 0
+
+        # https://stackoverflow.com/questions/56559627/what-are-hp-discrete-and-hp-realinterval-can-i-include-more-values-in-hp-realin
+        for optimizer in ADAM_LR.domain.values:
+            hparams = {
+                'adam_lr': optimizer,
+            }
+            run_name = "run-%d" % session_num
+            print('--- Starting trial: %s' % run_name)
+            print({h: hparams[h] for h in hparams})
+            run(hparams, hparams_log_dir + run_name)
+            session_num += 1
 	
-	# Train and Test Model for 1 epoch.
-	print("==================TRAINING=================")
-	for i in range(25):
-		train(model, train_complex, train_simple, simple_padding_index)
-	print("===================TESTING=================")
-	test(model, test_complex, test_simple, simple_padding_index)
-	print("===================TESTING COMPLETE=================")
-
-	pass
-
+	
 if __name__ == '__main__':
 	main()
