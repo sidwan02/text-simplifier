@@ -215,51 +215,38 @@ def main():
  
 	
 	train_complex = train_complex[:1000, :]
+ 
+	train_simple_trunc = train_simple[:1000, :-1]
 
-    train_simple_trunc = train_simple[:1000, :-1]
-
-    labels = train_simple[:1000, 1:]
+	labels = train_simple[:1000, 1:]
 
     # ============
     # print("train_complex.shape: ", train_complex.shape)
     # print("train_simple_trunc.shape: ", train_simple_trunc.shape)
     # print("labels.shape: ", labels.shape)
 
-    train_dataset = tf.data.Dataset.from_tensor_slices((train_complex, train_simple_trunc, labels))
-    train_dataset = train_dataset.batch(128)
+	train_dataset = tf.data.Dataset.from_tensor_slices((train_complex, train_simple_trunc, labels))
+	train_dataset = train_dataset.batch(128)
 
     # model.fit(train_dataset, epochs=10, callbacks=[tensorboard_callback])
     
-    test_complex = test_complex[:1000, :]
+	test_complex = test_complex[:1000, :]
 
-    test_simple_trunc = test_simple[:1000, :-1]
+	test_simple_trunc = test_simple[:1000, :-1]
 
-    labels = test_simple[:1000, 1:]
+	labels = test_simple[:1000, 1:]
 
-    test_dataset = tf.data.Dataset.from_tensor_slices((test_complex, test_simple_trunc, labels))
-    test_dataset = test_dataset.batch(128)
+	test_dataset = tf.data.Dataset.from_tensor_slices((test_complex, test_simple_trunc, labels))
+	test_dataset = test_dataset.batch(128)
 
 
 	def save_trained_weights(hparams):
-		model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
-        # model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
-        #             ENGLISH_WINDOW_SIZE, len(english_vocab), hparams)
-        # if sys.argv[1] == "RNN":
-        #     model = RNN_Seq2Seq(*model_args)
-        # elif sys.argv[1] == "TRANSFORMER":
-        # model = Transformer_Seq2Seq(*model_args)
-        model = Simplifier_Transformer(*model_args) 
-
-        # model.compile(optimizer=model.optimizer, run_eagerly=True)
-        # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
-        # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
-        
-        model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
-
-        # ============
-        # perplexity_metric = tf.keras.metrics.Mean(name="perplexity")
-
-        model.fit(
+    	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
+    	model = Simplifier_Transformer(*model_args) 
+     
+    	model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
+     
+    	model.fit(
             train_dataset, 
             epochs=3, 
             # callbacks=[
@@ -268,35 +255,22 @@ def main():
             #     ], 
             validation_data=test_dataset
             )
-
-        model((np.zeros((128, 14)), np.zeros((128, 14))))
-
-
-        model.save_weights(cur_dir + "/model.h5")
+     
+    	model((np.zeros((128, 14)), np.zeros((128, 14))))
+    	
+    	model.save_weights(cur_dir + "/model.h5")
 
 	def evaluate_model_from_loaded_weights(hparams):
-        # model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
-        #             ENGLISH_WINDOW_SIZE, len(english_vocab), hparams)
-        # if sys.argv[1] == "RNN":
-        #     model = RNN_Seq2Seq(*model_args)
-        # elif sys.argv[1] == "TRANSFORMER":
-        # model = Transformer_Seq2Seq(*model_args)
         model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
-		model = Simplifier_Transformer(*model_args)
-
-        # model.compile(optimizer=model.optimizer, run_eagerly=True)
-        # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
-        # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
-
-        # model.build(input_shape=(128, 1, 28, 28))
-		model((np.zeros((128, 14)), np.zeros((128, 14))))
+        model = Simplifier_Transformer(*model_args)
         
-		model.load_weights(cur_dir + "/model.h5")
+        model((np.zeros((128, 14)), np.zeros((128, 14))))
         
-		model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
-
-
-		score = model.evaluate(test_dataset, verbose=0)
+        model.load_weights(cur_dir + "/model.h5")
+        
+        model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
+        
+        score = model.evaluate(test_dataset, verbose=0)
 
         print("score: ", score)
 
@@ -341,7 +315,7 @@ def main():
 
         save_trained_weights(hparams)
 
-    elif sys.argv[1] == "LOAD":
+	elif sys.argv[1] == "LOAD":
         ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001]))
 
         hparams = {
@@ -350,7 +324,7 @@ def main():
 
         evaluate_model_from_loaded_weights(hparams)
 
-    elif sys.argv[1] == "TUNE":
+	elif sys.argv[1] == "TUNE":
         l = np.arange(0.0001, 0.01 + 0.0001, 0.0005)
         print("l: ", l)
         ADAM_LR = hp.HParam('adam_lr', hp.Discrete(l.tolist()))
