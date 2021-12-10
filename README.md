@@ -1,12 +1,16 @@
-# RNN
+## Run Locally
 
-Perplexity=(11.426952362060547) AccPerSymbol=(0.6194498538970947)
+Frontend:
 
-# Transformer
+1. cd frontend/
+2. yarn start
 
-Perplexity=(8.883011817932129) AccPerSymbol=(0.654095470905304)
+Backend:
 
-Resources:
+1. cd backend/code/
+2. python app.py
+
+## Resources:
 
 1. https://www.tensorflow.org/tensorboard/get_started
 2. https://www.tensorflow.org/api_docs/python/tf/data/Dataset
