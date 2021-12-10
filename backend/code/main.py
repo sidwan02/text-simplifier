@@ -14,11 +14,11 @@ os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 """
 
-"""
+
 physical_devices = tf.config.list_physical_devices('GPU') 
 for device in physical_devices:
 	tf.config.experimental.set_memory_growth(device, True)
-"""
+
 
 import datetime
 
@@ -166,11 +166,11 @@ def main():
  
 	# print("train_complex.shape ==========", train_complex.shape)	
  
-	train_complex = train_complex[:1000, :]
+	train_complex = train_complex[:, :]
  
-	train_simple_trunc = train_simple[:1000, :-1]
+	train_simple_trunc = train_simple[:, :-1]
 
-	labels = train_simple[:1000, 1:]
+	labels = train_simple[:, 1:]
 
 	# ============
 	# print("train_complex.shape: ", train_complex.shape)
@@ -182,11 +182,11 @@ def main():
 
 	# model.fit(train_dataset, epochs=10, callbacks=[tensorboard_callback])
 	
-	test_complex = test_complex[:1000, :]
+	test_complex = test_complex[:, :]
 
-	test_simple_trunc = test_simple[:1000, :-1]
+	test_simple_trunc = test_simple[:, :-1]
 
-	labels = test_simple[:1000, 1:]
+	labels = test_simple[:, 1:]
 
 	test_dataset = tf.data.Dataset.from_tensor_slices((test_complex, test_simple_trunc, labels))
 	test_dataset = test_dataset.batch(64)
@@ -200,7 +200,7 @@ def main():
 	 
 		model.fit(
 			train_dataset, 
-			epochs=3, 
+			epochs=10, 
 			# callbacks=[
 			#     keras.callbacks.TensorBoard(log_dir=logdir, histogram_freq=1, update_freq='batch', embeddings_freq=1), 
 			#     hp.KerasCallback(logdir, hparams)
@@ -259,7 +259,7 @@ def main():
 
 		model.fit(
 			train_dataset, 
-			epochs=3, 
+			epochs=1, 
 			callbacks=[
 				keras.callbacks.TensorBoard(log_dir=logdir, histogram_freq=1, update_freq='batch', embeddings_freq=1), 
 				hp.KerasCallback(logdir, hparams)
@@ -292,8 +292,8 @@ def main():
 		# print("l: ", l)
 		# ADAM_LR = hp.HParam('adam_lr', hp.Discrete(l.tolist()))
 		
-		ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.015, 0.001, 0.005]))
-		EMBEDDING_SIZE = hp.HParam('embedding_size', hp.Discrete([40, 50, 60]))
+		ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001, 0.005]))
+		EMBEDDING_SIZE = hp.HParam('embedding_size', hp.Discrete([40, 50]))
 		# hparams = {
 		# 	'adam_lr': ADAM_LR.domain.values[0],
    		# 	'embedding_size': EMBEDDING_SIZE.domain.values[0],
