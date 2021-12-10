@@ -1,12 +1,16 @@
-# RNN
+## Run Locally
 
-Perplexity=(11.426952362060547) AccPerSymbol=(0.6194498538970947)
+Frontend:
 
-# Transformer
+1. cd frontend/
+2. yarn start
 
-Perplexity=(8.883011817932129) AccPerSymbol=(0.654095470905304)
+Backend:
 
-Resources:
+1. cd backend/code/
+2. python app.py
+
+## Resources:
 
 1. https://www.tensorflow.org/tensorboard/get_started
 2. https://www.tensorflow.org/api_docs/python/tf/data/Dataset
@@ -33,3 +37,6 @@ Resources:
 17. https://github.com/mars/create-react-app-buildpack#user-content-generate-a-react-app
 
 <!-- somehow there isn't a need to cd for the frontend procfile probably because of the heroku prebuild causing it to already be cd into frontend -->
+
+18. https://www.tensorflow.org/api_docs/python/tf/data/experimental/save
+19. https://stackoverflow.com/questions/19201290/how-to-save-a-dictionary-to-a-file/32216025

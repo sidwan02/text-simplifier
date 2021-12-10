@@ -7,8 +7,33 @@ import React, { useState } from 'react';
 
 function App() {
   const [resultText, setresultText] = useState(
-    'Type something in the other box and submit!'
+    'To simplify text, type something in the other box and submit!\nTo evaluate the model, no need to type anything :)'
   );
+
+  const evaluateModelClick = () => {
+    // setresultText('Evaluating Model ...');
+
+    axios
+      .get(
+        // somehow putting the trailing / causes 404
+        // 'https://text-simplifier-api.herokuapp.com/evaluate'
+        'http://127.0.0.1:5000/evaluate'
+      )
+      .then((response) => {
+        console.log('data: ', response.data);
+        setresultText(
+          'Loss: ' +
+            response.data.loss +
+            '\nWeighted Accuracy: ' +
+            response.data.accuracy +
+            '\nPerplexity Per Symbol: ' +
+            response.data.perplexity
+        );
+      })
+      .catch((error) => {
+        console.log('error: ', error);
+      });
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -17,7 +42,7 @@ function App() {
     onSubmit: (values) => {
       console.log('values: ', values);
 
-      setresultText('Generating simplified text ...');
+      setresultText('Loading ...');
 
       const toSend = values.inputText;
 
@@ -31,13 +56,14 @@ function App() {
       axios
         .post(
           // somehow putting the trailing / causes 404
-          'https://text-simplifier-api.herokuapp.com/evaluate-model',
+          // 'https://text-simplifier-api.herokuapp.com/simplify',
+          'http://127.0.0.1:5000/simplify',
           toSend,
           config
         )
         .then((response) => {
           console.log('data: ', response.data);
-          setresultText(response.data.stdout);
+          setresultText(response.data.text);
         })
         .catch((error) => {
           console.log('error: ', error);
@@ -47,6 +73,7 @@ function App() {
 
   return (
     <div className="App">
+      <div className="title-div">Text Simplifier</div>
       <div className="whole-div">
         <form onSubmit={formik.handleSubmit}>
           <label htmlFor="inputText">Input Text</label>
@@ -59,6 +86,9 @@ function App() {
           />
           <div className="btnDiv">
             <AwesomeButton type="primary">Get Simplified Text</AwesomeButton>{' '}
+            <AwesomeButton type="primary" onPress={evaluateModelClick}>
+              Evaluate Model
+            </AwesomeButton>{' '}
           </div>
         </form>
 
@@ -78,7 +108,7 @@ function App() {
         <AwesomeButton
           // className="tb-button"
           type="primary"
-          href="https://tinyurl.com/tb-adam-hyperparam-seq2seq/"
+          href="https://tensorboard.dev/experiment/kGF17AQUQyGUMmCoB62Kpw/#scalars"
           target="_blank"
         >
           Launch Tensorboard

@@ -1,1 +1,1 @@
-web: ls && cd backend/API/ && gunicorn app:app
+web: ls && cd backend/code/ && gunicorn app:app
