@@ -9,6 +9,11 @@ import random
 import re
 from tensorflow import keras
 
+import datetime
+
+from tensorboard.plugins.hparams import api as hp
+
+from metrics import custom_loss, AccWeightedSum, Perplexity
 
 def simplify_main(text_input, simplification_strength=1):
     
@@ -29,6 +34,12 @@ def simplify_main(text_input, simplification_strength=1):
 	print("Preprocessing complete.")
 
 	# ====
+	ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001]))
+	EMBEDDING_SIZE = hp.HParam('embedding_size', hp.Discrete([50]))
+	hparams = {
+		'adam_lr': ADAM_LR.domain.values[0],
+		'embedding_size': EMBEDDING_SIZE.domain.values[0],
+	}
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
 	model = Simplifier_Transformer(*model_args)
