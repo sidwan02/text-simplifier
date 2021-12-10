@@ -240,8 +240,117 @@ def main():
     test_dataset = test_dataset.batch(128)
 
 
-	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
-	model = Simplifier_Transformer(*model_args) 
+	def save_trained_weights(hparams):
+		model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
+        # model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
+        #             ENGLISH_WINDOW_SIZE, len(english_vocab), hparams)
+        # if sys.argv[1] == "RNN":
+        #     model = RNN_Seq2Seq(*model_args)
+        # elif sys.argv[1] == "TRANSFORMER":
+        # model = Transformer_Seq2Seq(*model_args)
+        model = Simplifier_Transformer(*model_args) 
+
+        # model.compile(optimizer=model.optimizer, run_eagerly=True)
+        # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
+        # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
+        
+        model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
+
+        # ============
+        # perplexity_metric = tf.keras.metrics.Mean(name="perplexity")
+
+        model.fit(
+            train_dataset, 
+            epochs=3, 
+            # callbacks=[
+            #     keras.callbacks.TensorBoard(log_dir=logdir, histogram_freq=1, update_freq='batch', embeddings_freq=1), 
+            #     hp.KerasCallback(logdir, hparams)
+            #     ], 
+            validation_data=test_dataset
+            )
+
+        model((np.zeros((128, 14)), np.zeros((128, 14))))
+
+
+        model.save_weights(cur_dir + "/model.h5")
+
+	def evaluate_model_from_loaded_weights(hparams):
+        # model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
+        #             ENGLISH_WINDOW_SIZE, len(english_vocab), hparams)
+        # if sys.argv[1] == "RNN":
+        #     model = RNN_Seq2Seq(*model_args)
+        # elif sys.argv[1] == "TRANSFORMER":
+        # model = Transformer_Seq2Seq(*model_args)
+        model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
+		model = Simplifier_Transformer(*model_args)
+
+        # model.compile(optimizer=model.optimizer, run_eagerly=True)
+        # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
+        # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
+
+        # model.build(input_shape=(128, 1, 28, 28))
+        model((np.zeros((128, 14)), np.zeros((128, 14))))
+        
+        model.load_weights(cur_dir + "/model.h5")
+        
+        model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
+
+
+        score = model.evaluate(test_dataset, verbose=0)
+
+        print("score: ", score)
+
+        return score
+	
+	def run(hparams, logdir):
+        print("hparams: ", hparams)
+
+        # model_args = (FRENCH_WINDOW_SIZE, len(french_vocab),
+        #             ENGLISH_WINDOW_SIZE, len(english_vocab), hparams)
+        # if sys.argv[1] == "RNN":
+        #     model = RNN_Seq2Seq(*model_args)
+        # elif sys.argv[1] == "TRANSFORMER":
+        # model = Transformer_Seq2Seq(*model_args)
+        model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
+		model = Simplifier_Transformer(*model_args)
+
+        # model.compile(optimizer=model.optimizer, run_eagerly=True)
+        # loss_per_symbol_metric = tf.keras.metrics.Mean(name="loss_per_symbol")
+        # acc_weighted_sum_metric = tf.keras.metrics.Mean(name="acc_weighted_sum")
+        
+        model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
+
+        # ============
+        # perplexity_metric = tf.keras.metrics.Mean(name="perplexity")
+
+        model.fit(
+            train_dataset, 
+            epochs=3, 
+            callbacks=[
+                keras.callbacks.TensorBoard(log_dir=logdir, histogram_freq=1, update_freq='batch', embeddings_freq=1), 
+                hp.KerasCallback(logdir, hparams)
+                ], 
+            validation_data=test_dataset
+            )
+
+
+            # model.save('my_model', save_format="tf")
+
+        # model.evaluate(
+        #     test_dataset,
+            
+        # )
+
+        # model.reset()
+
+
+        # model.evaluate(test_dataset, callbacks=[tensorboard_callback])
+
+        
+        # Visualize a sample attention matrix from the test set
+        # Only takes effect if you enabled visualizations above
+        # av.show_atten_heatmap()
+        
 	
 	# Train and Test Model for 1 epoch.
 	print("==================TRAINING=================")
