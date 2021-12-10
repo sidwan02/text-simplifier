@@ -10,6 +10,8 @@ import re
 from tensorflow import keras
 
 def get_model():
+	cur_dir = os.path.dirname(os.path.abspath(__file__))
+    
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
 	model = Simplifier_Transformer(*model_args)
 	

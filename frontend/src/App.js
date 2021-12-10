@@ -7,8 +7,23 @@ import React, { useState } from 'react';
 
 function App() {
   const [resultText, setresultText] = useState(
-    'Type something in the other box and submit!'
+    'To simplify text, type something in the other box and submit!\nTo evaluate the model, no need to type anything :)'
   );
+
+  const evaluateModelClick = () => {
+    axios
+      .get(
+        // somehow putting the trailing / causes 404
+        'https://text-simplifier-api.herokuapp.com/evaluate'
+      )
+      .then((response) => {
+        console.log('data: ', response.data);
+        setresultText(response.data.score);
+      })
+      .catch((error) => {
+        console.log('error: ', error);
+      });
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -31,13 +46,13 @@ function App() {
       axios
         .post(
           // somehow putting the trailing / causes 404
-          'https://text-simplifier-api.herokuapp.com/evaluate-model',
+          'https://text-simplifier-api.herokuapp.com/simplify',
           toSend,
           config
         )
         .then((response) => {
           console.log('data: ', response.data);
-          setresultText(response.data.stdout);
+          setresultText(response.data.text);
         })
         .catch((error) => {
           console.log('error: ', error);
@@ -59,6 +74,7 @@ function App() {
           />
           <div className="btnDiv">
             <AwesomeButton type="primary">Get Simplified Text</AwesomeButton>{' '}
+            <AwesomeButton type="primary">Evaluate Model</AwesomeButton>{' '}
           </div>
         </form>
 

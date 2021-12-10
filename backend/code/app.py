@@ -52,20 +52,18 @@ def landing():
 #   else:
 #     return "Send a POST request to this URL with a text string of the sentence(s) you want to simplify"
 
-@app.route('/evaluate-model', methods=['GET'])
+@app.route('/evaluate', methods=['GET'])
 def evaluate_model():
   if request.method == 'GET':
     text = request.get_data()
     print(text)
     
-    simplified_text = main(text)
+    score = main(text)
 
     # print(stdout)
     # print(stderr)
     return jsonify({
-            "stdout": stdout,
-            "stderr" : stderr,
-            "METHOD" : "POST"
+            "score": score,
         })
   
 @app.route('/simplify', methods=['POST', 'GET'])
