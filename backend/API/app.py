@@ -17,10 +17,10 @@ def evaluate_model():
     text = request.get_data()
     print(text)
     
-    # p = Popen('python ../hw4/code/assignment.py LOAD', stdout = PIPE, 
-    #     stderr = PIPE, shell = True)
-    p = Popen('python ../code/help.py', stdout = PIPE, 
-          stderr = PIPE, shell = True)
+    p = Popen('python ../code/main.py LOAD', stdout = PIPE, 
+        stderr = PIPE, shell = True)
+    # p = Popen('python ../code/help.py', stdout = PIPE, 
+    #       stderr = PIPE, shell = True)
     
     stdout = ""
     stderr = ""
