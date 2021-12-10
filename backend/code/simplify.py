@@ -9,19 +9,6 @@ import random
 import re
 from tensorflow import keras
 
-def get_model():
-	cur_dir = os.path.dirname(os.path.abspath(__file__))
-    
-	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
-	model = Simplifier_Transformer(*model_args)
-	
-	model((np.zeros((64, 420)), np.zeros((64, 220))))
-	
-	model.load_weights(cur_dir + "/model.h5")
-	
-	model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
- 
-	return model
 
 def simplify_main(text_input, simplification_strength=1):
 	UNK_TOKEN = "*UNK*"
@@ -35,7 +22,20 @@ def simplify_main(text_input, simplification_strength=1):
 	pad_complex_id = complex_vocab["*PAD*"]
 	start_simple_id = simple_vocab["*START*"]
 	stop_simple_id = simple_vocab["*STOP*"]
-	print("Preprocessing complete.")  
+	print("Preprocessing complete.")
+
+	# ====
+
+	cur_dir = os.path.dirname(os.path.abspath(__file__))
+    
+	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
+	model = Simplifier_Transformer(*model_args)
+	
+	model((np.zeros((64, 420)), np.zeros((64, 220))))
+	
+	model.load_weights(cur_dir + "/model.h5")
+	
+	model.compile(optimizer=model.optimizer, loss=custom_loss, metrics=[AccWeightedSum(), Perplexity()], run_eagerly=True)
 
 	def call_inference(model, input_ids):
 		"""
@@ -117,6 +117,5 @@ def simplify_main(text_input, simplification_strength=1):
 			simplified = call_inference(model, processed_text)
 			return simplify(model, simplified, simplification_strength - 1)
 
-	model = get_model()
 	return simplify(model, text_input)
 

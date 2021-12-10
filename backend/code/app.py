@@ -58,7 +58,7 @@ def evaluate_model():
     text = request.get_data()
     print(text)
     
-    score = main(text)
+    score = evaluate_main(text)
 
     # print(stdout)
     # print(stderr)
@@ -72,7 +72,7 @@ def simplify():
     text = request.get_data()
     print(text)
     
-    simplified_text = main(text)
+    simplified_text = simplify_main(text)
     
     return jsonify({
             "text": simplified_text,

@@ -94,7 +94,7 @@ function App() {
         <AwesomeButton
           // className="tb-button"
           type="primary"
-          href="https://tinyurl.com/tb-adam-hyperparam-seq2seq/"
+          href="https://tensorboard.dev/experiment/kGF17AQUQyGUMmCoB62Kpw/#scalars"
           target="_blank"
         >
           Launch Tensorboard
