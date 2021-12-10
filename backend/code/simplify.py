@@ -44,6 +44,8 @@ def simplify_main(text_input, simplification_strength=1):
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
 	model = Simplifier_Transformer(*model_args)
+	simple_vocab = None
+	complex_vocab = None
 	
 	model((np.zeros((64, 420)), np.zeros((64, 220))))
 	
@@ -125,6 +127,7 @@ def simplify_main(text_input, simplification_strength=1):
 		:returns: the simplified text as a string
 		"""
 		if simplification_strength < 1:
+			model = None
 			return text_input
 		else:
 			processed_text = convert_to_id_single_string(complex_vocab, parse(text_input))

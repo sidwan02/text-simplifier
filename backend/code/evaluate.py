@@ -38,6 +38,9 @@ def evaluate_main():
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
 	model = Simplifier_Transformer(*model_args)
+	simple_vocab = None
+	complex_vocab = None
+	
 
 	model((np.zeros((64, 420)), np.zeros((64, 220))))
 	
@@ -48,5 +51,7 @@ def evaluate_main():
 	# ======
  
 	score = model.evaluate(test_dataset, verbose=0)
+	test_dataset = None
+	model = None
 	return score
 
