@@ -212,6 +212,32 @@ def main():
 	print("Preprocessing complete.")
  
 	print("eng_padding_index ======================: ", eng_padding_index)
+ 
+	
+	train_complex = train_complex[:1000, :]
+
+    train_simple_trunc = train_simple[:1000, :-1]
+
+    labels = train_simple[:1000, 1:]
+
+    # ============
+    # print("train_complex.shape: ", train_complex.shape)
+    # print("train_simple_trunc.shape: ", train_simple_trunc.shape)
+    # print("labels.shape: ", labels.shape)
+
+    train_dataset = tf.data.Dataset.from_tensor_slices((train_complex, train_simple_trunc, labels))
+    train_dataset = train_dataset.batch(128)
+
+    # model.fit(train_dataset, epochs=10, callbacks=[tensorboard_callback])
+    
+    test_complex = test_complex[:1000, :]
+
+    test_simple_trunc = test_simple[:1000, :-1]
+
+    labels = test_simple[:1000, 1:]
+
+    test_dataset = tf.data.Dataset.from_tensor_slices((test_complex, test_simple_trunc, labels))
+    test_dataset = test_dataset.batch(128)
 
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
