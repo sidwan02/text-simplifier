@@ -19,7 +19,7 @@ def evaluate_model():
     
     # p = Popen('python ../hw4/code/assignment.py LOAD', stdout = PIPE, 
     #     stderr = PIPE, shell = True)
-    p = Popen('python ../hw4/code/help.py', stdout = PIPE, 
+    p = Popen('python ../code/help.py', stdout = PIPE, 
           stderr = PIPE, shell = True)
     
     stdout = ""

@@ -205,7 +205,7 @@ def main():
 		exit()
   
 	cur_dir = os.path.dirname(os.path.abspath(__file__))
-	data_root = os.path.dirname(os.path.dirname(cur_dir)) + '/data'
+	data_root = os.path.dirname(cur_dir) + '/data'
 	print(data_root)
 		
 	UNK_TOKEN = "*UNK*"
@@ -217,7 +217,8 @@ def main():
  
 	print("simple_padding_index ======================: ", simple_padding_index)
  
-	
+	# print("train_complex.shape ==========", train_complex.shape)	
+ 
 	train_complex = train_complex[:1000, :]
  
 	train_simple_trunc = train_simple[:1000, :-1]
@@ -260,7 +261,7 @@ def main():
 			validation_data=test_dataset
 			)
 	 
-		model((np.zeros((128, 14)), np.zeros((128, 14))))
+		model((np.zeros((64, 420)), np.zeros((64, 220))))
 		
 		model.save_weights(cur_dir + "/model.h5")
 
@@ -268,7 +269,7 @@ def main():
 		model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
 		model = Simplifier_Transformer(*model_args)
 		
-		model((np.zeros((128, 14)), np.zeros((128, 14))))
+		model((np.zeros((64, 420)), np.zeros((64, 220))))
 		
 		model.load_weights(cur_dir + "/model.h5")
 		

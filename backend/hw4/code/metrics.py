@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-def create_mask(labels, eng_padding_index=41):
+def create_mask(labels, eng_padding_index=10):
     mask = tf.where(labels == eng_padding_index, 0, 1)
     batch_valid_tokens = tf.cast(tf.math.reduce_sum(mask), dtype=tf.float32)
     return mask, batch_valid_tokens
@@ -42,7 +42,7 @@ class AccWeightedSum(tf.keras.metrics.Metric):
         self.total_tokens = self.add_weight("total_tokens", initializer="zeros")
         self.total_weighted_acc = self.add_weight("total_weighted_acc", initializer="zeros")
         
-    def reset_states(self):
+    def reset_state(self):
         self.total_tokens.assign(0)
         self.total_weighted_acc.assign(0)
             
@@ -94,7 +94,7 @@ class Perplexity(tf.keras.metrics.Metric):
         self.acc_loss = self.add_weight("acc_loss", initializer="zeros")
         self.total_valid_tokens = self.add_weight("total_valid_tokens", initializer="zeros")
         
-    def reset_states(self):
+    def reset_state(self):
         self.acc_loss.assign(0)
         self.total_valid_tokens.assign(0)
             
