@@ -11,6 +11,8 @@ function App() {
   );
 
   const evaluateModelClick = () => {
+    // setresultText('Evaluating Model ...');
+
     axios
       .get(
         // somehow putting the trailing / causes 404
@@ -19,7 +21,14 @@ function App() {
       )
       .then((response) => {
         console.log('data: ', response.data);
-        setresultText(response.data.score);
+        setresultText(
+          'Loss: ' +
+            response.data.loss +
+            '\nWeighted Accuracy: ' +
+            response.data.accuracy +
+            '\nPerplexity Per Symbol: ' +
+            response.data.perplexity
+        );
       })
       .catch((error) => {
         console.log('error: ', error);
@@ -33,7 +42,7 @@ function App() {
     onSubmit: (values) => {
       console.log('values: ', values);
 
-      setresultText('Generating simplified text ...');
+      setresultText('Loading ...');
 
       const toSend = values.inputText;
 
@@ -64,6 +73,7 @@ function App() {
 
   return (
     <div className="App">
+      <div className="title-div">Text Simplifier</div>
       <div className="whole-div">
         <form onSubmit={formik.handleSubmit}>
           <label htmlFor="inputText">Input Text</label>

@@ -9,7 +9,7 @@ CORS(app)
 
 @app.route("/")
 def landing():
-  return "Post to /evaluate-model"
+  return "GET at /evaluate or POST to /simplify"
 
 
 # @app.route('/evaluate-model', methods=['POST', 'GET'])
@@ -56,12 +56,14 @@ def landing():
 def evaluate_model():
   if request.method == 'GET':
     
-    score = evaluate_main()
+    loss, acc, perp = evaluate_main()
 
     # print(stdout)
     # print(stderr)
     return jsonify({
-            "score": score,
+            "loss": loss,
+            "accuracy": acc,
+            "perplexity": perp,
         })
   
 @app.route('/simplify', methods=['POST', 'GET'])
