@@ -12,6 +12,9 @@ from tensorflow import keras
 
 def evaluate_main(text_input, simplification_strength=1):
 	print("Running preprocessing...")
+ 
+	cur_dir = os.path.dirname(os.path.abspath(__file__))
+	data_root = os.path.dirname(cur_dir) + '/data'
 
 	train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, pad_simple_id = get_data(data_root+'/wiki_normal_train.txt', data_root+'/wiki_simple_train.txt', data_root+'/wiki_normal_test.txt', data_root+'/wiki_simple_test.txt')
 
@@ -25,8 +28,6 @@ def evaluate_main(text_input, simplification_strength=1):
 	test_dataset = test_dataset.batch(64)
 
 	# ====
-
-	cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab), hparams)
 	model = Simplifier_Transformer(*model_args)
