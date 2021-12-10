@@ -1,3 +1,21 @@
+## Results
+
+Adam LR = 0.005
+
+Embedding Size = 50
+
+Train Weighted Sum Accuracy: 0.8028
+
+Train Final Loss: 15949
+
+Train Perplexity Per Symbol: 3.1045
+
+Test Weighted Sum Accuracy: 0.8105
+
+Test Final Loss: 14556
+
+Test Perplexity Per Symbol: 2.8120
+
 ## Run Locally
 
 Frontend:
