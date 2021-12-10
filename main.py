@@ -156,30 +156,11 @@ def call_inference(model, input_ids):
 		print("new predicted word: ", vocab_word_list[position])
 		accumulated_output.append(vocab_word_list[position])
 
-		
-
-
-
-#### NOTE: commented out because lambda function gives syntax error
-
-# def probs_to_words(probs):
-# 	"""
-# 	helper function for converting decoder output (after being passed through softmax) to a sequence of words for use in simplify()
-
-# 	:param probs: The word probabilities as a tensor, [window_size x vocab_size]
-# 	:returns: words corresponding to the probabilities in a sentence
-
-# 	"""
-# 	probable_tokens = tf.argmax(probs, axis=1)
-	# probable_words = tf.map_fn(lambda token: simple_vocab[token], probable_tokens)
-	# probable_sentence = tf.join(probable_words, separator=' ')
-	# probable_sentence = tf.strings.as_string(probable_sentence)
-
-	# return re.sub('\s(?=[^A-Za-z0-9])', '', probable_sentence)
+	
 
 def parse(text_input):
     """
-     Transforms a string into a list of sentences, which are lists of words.
+     Transforms a string into a list of words.
   
     :text_input: the text to be parsed
     :returns: parsed text as a list of words/punctuation marks
@@ -200,17 +181,13 @@ def simplify(model, text_input, simplification_strength=1):
 	"""
 	if simplification_strength < 1:
 		return text_input
-	processed_text = convert_to_id(model.complex_vocab, parse(text_input))
-	# probs = model.call(processed_text)
-	simplified = call_inference(model, processed_text)
-	if simplification_strength == 1:
-		return simplified
 	else:
+		processed_text = convert_to_id(complex_vocab, parse(text_input))
+		simplified = call_inference(processed_text)
 		return simplify(model, simplified, simplification_strength - 1)
 	
 def main():	
 	
-
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
 	model = Simplifier_Transformer(*model_args) 
 	
