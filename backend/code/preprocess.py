@@ -66,6 +66,16 @@ def convert_to_id(vocab, sentences):
 		# print(np.shape(sentence))
 	return np.stack([[vocab[word] if word in vocab else vocab[UNK_TOKEN] for word in sentence] for sentence in sentences])
 
+def convert_to_id_single_string(vocab, sentence):
+	"""
+  Convert sentences to indexed 
+
+	:param vocab:  dictionary, word --> unique index
+	:param sentences:  list of words, each representing padded sentence
+	:return:  array of integers, with each element representing the word index of that element in the sentence
+  """
+	return [vocab[word] if word in vocab else vocab[UNK_TOKEN] for word in sentence]
+
 
 def read_data(file_name):
 	"""

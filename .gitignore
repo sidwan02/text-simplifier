@@ -9,4 +9,7 @@ wiki_simple_test.txt
 __pycache__/preprocess.cpython-37.pyc
 __pycache__/transformer_components.cpython-37.pyc
 __pycache__/simplifier_model.cpython-37.pyc
+__pycache__/preprocess.cpython-39.pyc
+__pycache__/simplifier_model.cpython-39.pyc
+__pycache__/transformer_components.cpython-39.pyc
 /env
