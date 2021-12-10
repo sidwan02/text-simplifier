@@ -72,7 +72,7 @@ def convert_to_id_single_string(vocab, sentence):
 
 	:param vocab:  dictionary, word --> unique index
 	:param sentences:  list of words, each representing padded sentence
-	:return: numpy array of integers, with each row representing the word indeces in the corresponding sentences
+	:return:  array of integers, with each element representing the word index of that element in the sentence
   """
 	return [vocab[word] if word in vocab else vocab[UNK_TOKEN] for word in sentence]
 
