@@ -1,0 +1,6 @@
+Flask==2.0.2
+Flask_Cors==3.0.10
+numpy==1.21.4
+tensorboard==2.7.0
+tensorflow_cpu==2.7.0
+gunicorn==20.1.0

@@ -1,0 +1,102 @@
+.App {
+  /* text-align: center; */
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans,
+    Helvetica Neue, Arial, sans-serif; */
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+.whole-div {
+  display: flex;
+  flex-direction: row;
+  /* width: 100vw;
+  height: 75vh; */
+}
+
+form {
+  /* position: absolute; */
+  margin: 10px;
+  /* padding: 10px; */
+  height: 75vh;
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
+  /* max-width: 60vh; */
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+}
+
+label {
+  margin: 10px;
+}
+
+textarea {
+  margin: 10px;
+  height: 50%;
+  max-height: 100%;
+  width: 60%;
+  max-width: 100%;
+  overflow-y: auto;
+  font-family: Segoe UI, Frutiger, Frutiger Linotype, Dejavu Sans,
+    Helvetica Neue, Arial, sans-serif;
+}
+
+.btnDiv {
+  display: inline-block;
+  margin: 10px;
+  letter-spacing: 10px;
+  width: 100%;
+}
+
+.resultDiv {
+  /* position: absolute;
+  top: 0;
+  right: 0; */
+  /* left: 0; */
+  width: 45vw;
+  height: 75vh;
+  margin: 10px;
+  /* padding: 10px; */
+  display: flex;
+  flex-direction: column;
+}
+
+.general-buttons-div {
+  display: flex;
+  justify-content: space-evenly;
+  /* margin-bottom: 20px; */
+  width: 100%;
+  height: 100%;
+  align-items: center;
+}

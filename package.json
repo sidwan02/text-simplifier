@@ -1,0 +1,9 @@
+{
+  "name": "text-simplifier",
+  "version": "1.0.0",
+  "homepage": "/frontend",
+  "scripts": {
+    "start": "cd frontend/ && yarn start",
+    "heroku-prebuild": "cd frontend/ && npm install && npm run build && yarn install"
+  }
+}
