@@ -21,7 +21,7 @@ def get_model():
  
 	return model
 
-def main(text_input, simplification_strength=1):
+def simplify_main(text_input, simplification_strength=1):
 	UNK_TOKEN = "*UNK*"
 	print("Running preprocessing...")
 	train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, pad_simple_id = get_data(data_root+'/wiki_normal_train.txt', data_root+'/wiki_simple_train.txt', data_root+'/wiki_normal_test.txt', data_root+'/wiki_simple_test.txt')
