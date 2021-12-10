@@ -20,12 +20,27 @@ for device in physical_devices:
     tf.config.experimental.set_memory_growth(device, True)
 """
 
-UNK_TOKEN = "*UNK*"
-print("Running preprocessing...")
-train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./wiki_normal_train.txt','./wiki_simple_train.txt','./wiki_normal_test.txt','./wiki_simple_test.txt')
-# train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./dummy_data/wiki_normal_train.txt','./dummy_data/wiki_simple_train.txt','./wiki_normal_test.txt','./wiki_simple_test.txt')
-# train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./dummy_data/fls.txt','./dummy_data/els.txt','./dummy_data/flt.txt','./dummy_data/elt.txt')
-print("Preprocessing complete.")
+import datetime
+
+from tensorboard.plugins.hparams import api as hp
+
+from metrics import custom_loss, AccWeightedSum, Perplexity
+
+current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+hparams_log_dir = 'logs/hparam_tuning/' + current_time
+
+l = np.arange(0.0001, 0.01 + 0.0001, 0.0005)
+print("l: ", l)
+
+ADAM_LR = hp.HParam('adam_lr', hp.Discrete(l.tolist()))
+
+hp.hparams_config(
+    hparams=[ADAM_LR],
+    # https://stackoverflow.com/questions/56852300/hyperparameter-tuning-using-tensorboard-plugins-hparams-api-with-custom-loss-fun
+    metrics=[hp.Metric('AccWeightedSum', display_name='acc_weighted_sum'), hp.Metric('Perplexity', display_name='perplexity')],
+    )
+
 
 def train(model, train_complex, train_simple, simple_padding_index):
 	"""
@@ -184,7 +199,20 @@ def simplify(model, text_input, simplification_strength=1):
 		return simplify(model, simplified, simplification_strength - 1)
 	
 def main():	
-	
+	if len(sys.argv) != 2 or sys.argv[1] not in {"SAVE", "TUNE", "LOAD"}:
+        print("USAGE: python assignment.py <Model Type>")
+        print("<Model Type>: [SAVE/TUNE/LOAD]")
+        exit()
+        
+	UNK_TOKEN = "*UNK*"
+	print("Running preprocessing...")
+	train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./wiki_normal_train.txt','./wiki_simple_train.txt','./wiki_normal_test.txt','./wiki_simple_test.txt')
+	# train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./dummy_data/wiki_normal_train.txt','./dummy_data/wiki_simple_train.txt','./wiki_normal_test.txt','./wiki_simple_test.txt')
+	# train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./dummy_data/fls.txt','./dummy_data/els.txt','./dummy_data/flt.txt','./dummy_data/elt.txt')
+	print("Preprocessing complete.")
+ 
+	print("eng_padding_index ======================: ", eng_padding_index)
+
 
 	model_args = (COMPLEX_WINDOW_SIZE, len(complex_vocab), SIMPLE_WINDOW_SIZE, len(simple_vocab))
 	model = Simplifier_Transformer(*model_args) 
