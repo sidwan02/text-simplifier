@@ -31,3 +31,5 @@ Resources:
 
 16. https://elements.heroku.com/buildpacks/heroku/heroku-buildpack-multi-procfile
 17. https://github.com/mars/create-react-app-buildpack#user-content-generate-a-react-app
+
+<!-- somehow there isn't a need to cd for the frontend procfile probably because of the heroku prebuild causing it to already be cd into frontend -->
