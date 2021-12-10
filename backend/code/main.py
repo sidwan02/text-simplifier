@@ -8,6 +8,7 @@ import sys
 import random
 import re
 from tensorflow import keras
+import pickle
 
 
 """
@@ -79,6 +80,14 @@ def main():
 	pad_complex_id = complex_vocab["*PAD*"]
 	start_simple_id = simple_vocab["*START*"]
 	stop_simple_id = simple_vocab["*STOP*"]
+
+
+	with open(cur_dir + '/simple_vocab.pkl', 'wb+') as f:
+		pickle.dump(simple_vocab, f)
+
+	with open(cur_dir + '/complex_vocab.pkl', 'wb+') as f:
+		pickle.dump(complex_vocab, f)
+
 	print("Preprocessing complete.")
 
 
@@ -112,7 +121,7 @@ def main():
 	test_dataset = tf.data.Dataset.from_tensor_slices((test_complex, test_simple_trunc, labels))
 	test_dataset = test_dataset.batch(64)
 
-	tf.data.experimental.save(train_dataset, cur_dir + "/train_dataset")
+	# tf.data.experimental.save(train_dataset, cur_dir + "/train_dataset")
 	tf.data.experimental.save(test_dataset, cur_dir + "/test_dataset")
 
 	def save_trained_weights(hparams):

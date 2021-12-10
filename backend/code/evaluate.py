@@ -8,7 +8,7 @@ import sys
 import random
 import re
 from tensorflow import keras
-
+import pickle
 import datetime
 
 from tensorboard.plugins.hparams import api as hp
@@ -21,6 +21,12 @@ def evaluate_main():
 	cur_dir = os.path.dirname(os.path.abspath(__file__))
 
 	test_dataset = tf.data.experimental.load(cur_dir + "/test_dataset")
+
+	with open(cur_dir + '/simple_vocab.pkl', 'rb') as f:
+		simple_vocab = pickle.load(f)
+
+	with open(cur_dir + '/complex_vocab.pkl', 'rb') as f:
+		complex_vocab = pickle.load(f)
 
 	# ====
 	ADAM_LR = hp.HParam('adam_lr', hp.Discrete([0.001]))

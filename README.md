@@ -33,3 +33,6 @@ Resources:
 17. https://github.com/mars/create-react-app-buildpack#user-content-generate-a-react-app
 
 <!-- somehow there isn't a need to cd for the frontend procfile probably because of the heroku prebuild causing it to already be cd into frontend -->
+
+18. https://www.tensorflow.org/api_docs/python/tf/data/experimental/save
+19. https://stackoverflow.com/questions/19201290/how-to-save-a-dictionary-to-a-file/32216025

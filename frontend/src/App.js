@@ -14,8 +14,8 @@ function App() {
     axios
       .get(
         // somehow putting the trailing / causes 404
-        // 'https://text-simplifier-api.herokuapp.com/evaluate'
-        'http://127.0.0.1:5000/evaluate'
+        'https://text-simplifier-api.herokuapp.com/evaluate'
+        // 'http://127.0.0.1:5000/evaluate'
       )
       .then((response) => {
         console.log('data: ', response.data);
@@ -47,8 +47,8 @@ function App() {
       axios
         .post(
           // somehow putting the trailing / causes 404
-          // 'https://text-simplifier-api.herokuapp.com/simplify',
-          'http://127.0.0.1:5000/simplify',
+          'https://text-simplifier-api.herokuapp.com/simplify',
+          // 'http://127.0.0.1:5000/simplify',
           toSend,
           config
         )

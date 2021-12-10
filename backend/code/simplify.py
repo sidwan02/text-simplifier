@@ -8,7 +8,7 @@ import sys
 import random
 import re
 from tensorflow import keras
-
+import pickle
 import datetime
 
 from tensorboard.plugins.hparams import api as hp
@@ -20,11 +20,12 @@ def simplify_main(text_input, simplification_strength=1):
 	cur_dir = os.path.dirname(os.path.abspath(__file__))
 	data_root = os.path.dirname(cur_dir) + '/data'
 
-	UNK_TOKEN = "*UNK*"
-	print("Running preprocessing...")
-	train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, pad_simple_id = get_data(data_root+'/wiki_normal_train.txt', data_root+'/wiki_simple_train.txt', data_root+'/wiki_normal_test.txt', data_root+'/wiki_simple_test.txt')
-	# train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, pad_simple_id = get_data('./dummy_data/wiki_normal_train.txt','./dummy_data/wiki_simple_train.txt','./wiki_normal_test.txt','./wiki_simple_test.txt')
-	# train_simple, test_simple, train_complex, test_complex, simple_vocab, complex_vocab, simple_padding_index = get_data('./dummy_data/fls.txt','./dummy_data/els.txt','./dummy_data/flt.txt','./dummy_data/elt.txt')
+	with open(cur_dir + '\simple_vocab.pkl', 'rb') as f:
+		simple_vocab = pickle.load(f)
+
+	with open(cur_dir + 'complex_vocab.pkl', 'rb') as f:
+		complex_vocab = pickle.load(f)
+
 	vocab_word_list = list(simple_vocab.keys())
 	vocab_idx_list = list(simple_vocab.values())
 	stop_complex_id = complex_vocab["*STOP*"]
